@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from database import init_db
+from flask_cors import CORS
 
 init_db()
 from database import (
@@ -12,6 +13,7 @@ from liqpay_service import liqpay
 import uuid
 
 app = Flask(__name__)
+CORS(app, origins=["https://sayboi.vercel.app"])
 
 init_db()
 
@@ -98,7 +100,6 @@ def create_payment():
         "checkout_url": payment["checkout_url"]
 
     })
-
 
 import os
 
