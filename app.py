@@ -3,7 +3,7 @@ from database import init_database
 from flask_cors import CORS
 
 
-init_db()
+init_database()
 from database import (
     init_database,
     create_purchase,
