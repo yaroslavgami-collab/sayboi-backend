@@ -19,7 +19,7 @@ import uuid
 app = Flask(__name__)
 CORS(app, origins=["https://sayboi.netlify.app"])
 
-init_db()
+init_database()
 
 
 COURSES = {
