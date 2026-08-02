@@ -108,15 +108,9 @@ def create_purchase(telegram_id, course, amount, order_id):
 
     conn.execute("""
         INSERT INTO purchases
-               (telegram_id, course, amount, order_id, status)
+        (telegram_id, course, amount, order_id, status)
         VALUES (?, ?, ?, ?, ?)
     """, (
-        telegram_id,
-        course,
-        amount,
-        order_id,
-        "pending"
-    ))
         telegram_id,
         course,
         amount,
