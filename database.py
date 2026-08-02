@@ -4,8 +4,16 @@ DATABASE = "database.db"
 
 
 def get_connection():
-    conn = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect(
+        DATABASE,
+        timeout=30
+    )
+
     conn.row_factory = sqlite3.Row
+
+    conn.execute("PRAGMA busy_timeout = 30000")
+    conn.execute("PRAGMA journal_mode = WAL")
+
     return conn
 
 
@@ -106,7 +114,6 @@ def create_purchase(telegram_id, course, amount, order_id):
 
     conn.commit()
     conn.close()
-
 
 def get_purchase(order_id):
     conn = get_connection()
