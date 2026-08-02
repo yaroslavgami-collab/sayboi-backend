@@ -1,4 +1,3 @@
-
 import sqlite3
 
 DATABASE = "database.db"
@@ -10,21 +9,87 @@ def get_connection():
     return conn
 
 
-def init_db():
+def init_database():
     conn = get_connection()
-    cursor = conn.cursor()
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS purchases (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        telegram_id TEXT NOT NULL,
-        course TEXT NOT NULL,
-        amount INTEGER NOT NULL,
-        order_id TEXT UNIQUE NOT NULL,
-        status TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
+    # Таблица пользователей
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            telegram_id INTEGER UNIQUE NOT NULL,
+            username TEXT,
+            premium INTEGER DEFAULT 0,
+            progress INTEGER DEFAULT 0,
+            lessons_completed INTEGER DEFAULT 0,
+            purchase_date TEXT
+        )
     """)
+
+    # Таблица покупок
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS purchases (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            telegram_id INTEGER NOT NULL,
+            course TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            order_id TEXT UNIQUE NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def add_user(telegram_id, username=""):
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT OR IGNORE INTO users
+        (telegram_id, username)
+        VALUES (?, ?)
+    """, (telegram_id, username))
+
+    conn.commit()
+    conn.close()
+
+
+def get_user(telegram_id):
+    conn = get_connection()
+
+    user = conn.execute("""
+        SELECT * FROM users
+        WHERE telegram_id = ?
+    """, (telegram_id,)).fetchone()
+
+    conn.close()
+
+    return user
+
+
+def activate_premium(telegram_id):
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE users
+        SET premium = 1
+        WHERE telegram_id = ?
+    """, (telegram_id,))
+
+    conn.commit()
+    conn.close()
+
+
+def update_progress(telegram_id, progress, lessons):
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE users
+        SET progress = ?,
+            lessons_completed = ?
+        WHERE telegram_id = ?
+    """, (progress, lessons, telegram_id))
 
     conn.commit()
     conn.close()
@@ -32,86 +97,38 @@ def init_db():
 
 def create_purchase(telegram_id, course, amount, order_id):
     conn = get_connection()
-    cursor = conn.cursor()
 
-    cursor.execute("""
-    INSERT INTO purchases
-    (telegram_id, course, amount, order_id, status)
-    VALUES (?, ?, ?, ?, ?)
-    """, (
-        telegram_id,
-        course,
-        amount,
-        order_id,
-        "pending"
-    ))
+    conn.execute("""
+        INSERT INTO purchases
+        (telegram_id, course, amount, order_id)
+        VALUES (?, ?, ?, ?)
+    """, (telegram_id, course, amount, order_id))
 
     conn.commit()
     conn.close()
-
-
-def payment_success(order_id):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    UPDATE purchases
-    SET status='success'
-    WHERE order_id=?
-    """, (order_id,))
-
-    conn.commit()
-    conn.close()
-
-
-def payment_failed(order_id):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    UPDATE purchases
-    SET status='failed'
-    WHERE order_id=?
-    """, (order_id,))
-
-    conn.commit()
-    conn.close()
-
-
-def has_access(telegram_id, course):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    SELECT *
-    FROM purchases
-    WHERE telegram_id=?
-    AND course=?
-    AND status='success'
-    """, (
-        telegram_id,
-        course
-    ))
-
-    result = cursor.fetchone()
-
-    conn.close()
-
-    return result is not None
 
 
 def get_purchase(order_id):
     conn = get_connection()
-    cursor = conn.cursor()
 
-    cursor.execute("""
-    SELECT *
-    FROM purchases
-    WHERE order_id=?
-    """, (order_id,))
-
-    result = cursor.fetchone()
+    purchase = conn.execute("""
+        SELECT * FROM purchases
+        WHERE order_id = ?
+    """, (order_id,)).fetchone()
 
     conn.close()
 
-    return result
+    return purchase
+
+
+def complete_purchase(order_id):
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE purchases
+        SET status = 'paid'
+        WHERE order_id = ?
+    """, (order_id,))
+
+    conn.commit()
+    conn.close()
