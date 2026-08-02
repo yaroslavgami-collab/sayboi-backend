@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PUBLIC_KEY = os.getenv("sandbox_i31822963077")
+import os
 
-PRIVATE_KEY = os.getenv("sandbox_h3giC2fnCeE9AwTS5yAtRlleFXkEwV2DoM9Ay6EE")
+PUBLIC_KEY = os.getenv("LIQPAY_PUBLIC_KEY")
+PRIVATE_KEY = os.getenv("LIQPAY_PRIVATE_KEY")
 
 BASE_URL = "https://sayboi-backend.onrender.com"
