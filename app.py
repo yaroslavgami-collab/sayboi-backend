@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from database import init_db
+from database import init_database
 from flask_cors import CORS
 
 
