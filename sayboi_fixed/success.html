@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Payment Successful</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+
+background:#090909;
+
+color:white;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+height:100vh;
+
+overflow:hidden;
+
+}
+
+/* Флаг */
+
+.flag{
+
+position:absolute;
+
+width:950px;
+
+opacity:.05;
+
+pointer-events:none;
+
+}
+
+/* Затемнение */
+
+.overlay{
+
+position:absolute;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,.45);
+
+backdrop-filter:blur(3px);
+
+}
+
+/* Контейнер */
+
+.container{
+
+position:relative;
+
+z-index:10;
+
+width:90%;
+
+max-width:390px;
+
+text-align:center;
+
+animation:fade .7s;
+
+}
+
+/* Галочка */
+
+.success{
+
+width:110px;
+
+height:110px;
+
+margin:auto;
+
+border-radius:50%;
+
+background:#171717;
+
+border:1px solid #2d2d2d;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-size:58px;
+
+color:#4ADE80;
+
+box-shadow:0 0 40px rgba(74,222,128,.12);
+
+}
+
+h1{
+
+margin-top:28px;
+
+font-size:31px;
+
+font-weight:700;
+
+}
+
+.subtitle{
+
+margin-top:14px;
+
+color:#9a9a9a;
+
+font-size:16px;
+
+line-height:1.7;
+
+}
+
+/* Информация */
+
+.info{
+
+margin-top:35px;
+
+background:#171717;
+
+border:1px solid #2d2d2d;
+
+border-radius:22px;
+
+padding:22px;
+
+}
+
+.info h2{
+
+font-size:18px;
+
+margin-bottom:12px;
+
+}
+
+.info p{
+
+color:#9d9d9d;
+
+line-height:1.7;
+
+font-size:15px;
+
+}
+
+/* Кнопки */
+
+button{
+
+width:100%;
+
+height:60px;
+
+margin-top:18px;
+
+border:none;
+
+border-radius:18px;
+
+background:#181818;
+
+border:1px solid #2d2d2d;
+
+color:white;
+
+font-size:18px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+button:hover{
+
+background:#242424;
+
+transform:translateY(-2px);
+
+}
+
+button:active{
+
+transform:scale(.98);
+
+}
+
+.secondary{
+
+background:transparent;
+
+}
+
+.footer{
+
+margin-top:28px;
+
+font-size:13px;
+
+color:#666;
+
+}
+
+/* Анимация */
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+
+transform:translateY(25px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<img class="flag"
+src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
+
+<div class="container">
+
+<div class="success">
+
+✓
+
+</div>
+
+<h1>
+
+Payment Successful
+
+</h1>
+
+<p class="subtitle">
+
+Welcome to SAY BOI.<br>
+
+Your course has been unlocked.
+
+</p>
+
+<div class="info">
+
+<h2>
+
+🎉 Congratulations!
+
+</h2>
+
+<p>
+
+Thank you for your purchase.
+
+You now have full access to your English course.
+
+Start learning whenever you want.
+
+</p>
+
+</div>
+
+<button onclick="openCourse()">
+
+Open Course →
+
+</button>
+
+<button class="secondary"
+
+onclick="window.location.href='index.html'">
+
+Home
+
+</button>
+
+<div class="footer">
+
+Thank you for choosing SAY BOI
+
+</div>
+
+</div>
+
+<script>
+
+if (window.Telegram && Telegram.WebApp) {
+    if (window.Telegram && Telegram.WebApp) {
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
+}
+}
+
+function openCourse(){
+
+alert("Here your course will open.");
+
+}
+
+</script>
+
+</body>
+
+</html>

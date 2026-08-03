@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1,
+maximum-scale=1,
+viewport-fit=cover">
+<title>Payment</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+
+background:#090909;
+color:white;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+height:100vh;
+
+overflow:hidden;
+
+}
+
+.flag{
+
+position:absolute;
+
+width:950px;
+
+opacity:.05;
+
+pointer-events:none;
+
+}
+
+.overlay{
+
+position:absolute;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,.45);
+
+backdrop-filter:blur(3px);
+
+}
+
+.container{
+
+position:relative;
+
+z-index:10;
+
+width:90%;
+
+max-width:390px;
+
+animation:fade .6s;
+
+}
+
+h1{
+
+text-align:center;
+
+font-size:30px;
+
+margin-bottom:8px;
+
+}
+
+.subtitle{
+
+text-align:center;
+
+color:#8f8f8f;
+
+margin-bottom:30px;
+
+}
+
+.course{
+
+background:#171717;
+
+border:1px solid #2d2d2d;
+
+border-radius:22px;
+
+padding:24px;
+
+margin-bottom:30px;
+
+}
+
+.courseName{
+
+font-size:22px;
+
+font-weight:600;
+
+}
+
+.coursePrice{
+
+margin-top:12px;
+
+font-size:34px;
+
+font-weight:700;
+
+}
+
+.payButton{
+
+width:100%;
+
+height:60px;
+
+margin-top:18px;
+
+border:none;
+
+border-radius:18px;
+
+background:#181818;
+
+border:1px solid #2d2d2d;
+
+color:white;
+
+font-size:18px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+.payButton:hover{
+
+background:#232323;
+
+transform:translateY(-2px);
+
+}
+
+.payButton:active{
+
+transform:scale(.98);
+
+}
+
+.back{
+
+background:transparent;
+
+}
+
+.secure{
+
+margin-top:30px;
+
+text-align:center;
+
+font-size:13px;
+
+color:#6e6e6e;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<img class="flag"
+src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
+
+<div class="container">
+
+<h1>Payment</h1>
+
+<p class="subtitle">
+Complete your purchase securely
+</p>
+
+<div class="course">
+
+<div id="courseName" class="courseName">
+Loading...
+</div>
+
+<div id="coursePrice" class="coursePrice">
+
+</div>
+
+</div>
+
+<button class="payButton"
+onclick="payApple()">
+
+ Apple Pay
+
+</button>
+
+<button onclick="async function payCard(course) {
+
+    const response = await fetch("http://127.0.0.1:5000/create-payment"), 
+    {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+            telegram_id: Telegram.WebApp.initDataUnsafe.user.id,
+
+            course: course
+
+        })
+
+    });
+
+    const payment = await response.json();
+
+    if (!payment.success) {
+
+        alert("Ошибка создания платежа");
+
+        return;
+
+    }
+
+    const form = document.createElement("form");
+
+    form.method = "POST";
+
+    form.action = payment.checkout_url;
+
+    form.target = "_self";
+
+    const dataInput = document.createElement("input");
+
+    dataInput.type = "hidden";
+
+    dataInput.name = "data";
+
+    dataInput.value = payment.data;
+
+    form.appendChild(dataInput);
+
+    const signInput = document.createElement("input");
+
+    signInput.type = "hidden";
+
+    signInput.name = "signature";
+
+    signInput.value = payment.signature;
+
+    form.appendChild(signInput);
+
+    document.body.appendChild(form);
+
+    form.submit();
+
+}('premium')">
+    Купить Premium
+   
+</button>
+
+</button>
+
+<button class="payButton back"
+onclick="history.back()">
+
+← Back
+
+</button>
+
+<div class="secure">
+
+🔒 Secure encrypted payment
+
+</div>
+
+</div>
+
+<script>
+
+if (window.Telegram && Telegram.WebApp){
+
+Telegram.WebApp.ready();
+
+Telegram.WebApp.expand();
+
+Telegram.WebApp.disableVerticalSwipes();
+
+}
+const params=new URLSearchParams(window.location.search);
+
+const course=params.get("course");
+
+let name="";
+let price="";
+
+switch(course){
+
+case "starter":
+
+name="🇬🇧 English Starter";
+
+price="$19";
+
+break;
+
+case "plus":
+
+name="🚀 English Plus";
+
+price="$39";
+
+break;
+
+case "premium":
+
+name="👑 English Premium";
+
+price="$69";
+
+break;
+
+default:
+
+name="English Course";
+
+price="$0";
+
+}
+
+document.getElementById("courseName").innerHTML=name;
+
+document.getElementById("coursePrice").innerHTML=price;
+
+function payApple(){
+
+window.location.href="success.html";
+
+}
+
+function payCard(){
+
+window.location.href="success.html";
+
+}
+
+</script>
+
+</body>
+
+</html>

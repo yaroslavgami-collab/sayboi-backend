@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>SAY BOI | Checkout</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,sans-serif;
+
+}
+
+html{
+
+height:100%;
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
+
+}
+
+body{
+
+background:#090909;
+color:white;
+
+min-height:100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+padding:40px 20px;
+
+overflow-y:auto;
+
+position:relative;
+
+}
+
+.flag{
+
+position:fixed;
+
+top:50%;
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:900px;
+
+opacity:.045;
+
+pointer-events:none;
+
+user-select:none;
+
+}
+
+.overlay{
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.35);
+
+backdrop-filter:blur(4px);
+
+}
+
+.container{
+
+position:relative;
+
+z-index:5;
+
+width:100%;
+max-width:430px;
+
+animation:show .45s;
+
+}
+
+@keyframes show{
+
+from{
+
+opacity:0;
+transform:translateY(25px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+.logo{
+
+font-size:42px;
+font-weight:800;
+text-align:center;
+
+margin-bottom:8px;
+
+}
+
+.subtitle{
+
+text-align:center;
+
+color:#939393;
+
+margin-bottom:35px;
+
+font-size:15px;
+
+}
+
+.card{
+
+background:#151515;
+
+border:1px solid #2c2c2c;
+
+border-radius:24px;
+
+padding:26px;
+
+box-shadow:0 15px 45px rgba(0,0,0,.35);
+
+margin-bottom:25px;
+
+}
+
+.badge{
+
+display:inline-block;
+
+padding:7px 14px;
+
+background:#202020;
+
+border-radius:30px;
+
+font-size:13px;
+
+margin-bottom:18px;
+
+color:#d7d7d7;
+
+}
+
+.course{
+
+font-size:28px;
+
+font-weight:700;
+
+margin-bottom:10px;
+
+}
+
+.price{
+
+font-size:44px;
+
+font-weight:800;
+
+margin-bottom:20px;
+
+}
+
+.line{
+
+width:100%;
+height:1px;
+
+background:#2a2a2a;
+
+margin:20px 0;
+
+}
+
+.feature{
+
+display:flex;
+
+justify-content:space-between;
+
+margin:12px 0;
+
+font-size:15px;
+
+color:#d0d0d0;
+
+}
+
+.feature span:last-child{
+
+color:white;
+
+font-weight:600;
+
+}
+
+button{
+
+width:100%;
+
+height:60px;
+
+border:none;
+
+border-radius:18px;
+
+cursor:pointer;
+
+font-size:18px;
+
+font-weight:700;
+
+transition:.25s;
+
+}
+
+.checkout{
+
+background:white;
+
+color:black;
+
+}
+
+.checkout:hover{
+
+transform:translateY(-2px);
+
+}
+
+.back{
+
+margin-top:14px;
+
+background:#171717;
+
+border:1px solid #2d2d2d;
+
+color:white;
+
+}
+
+.back:hover{
+
+background:#202020;
+
+}
+
+.loader{
+
+display:none;
+
+margin-top:25px;
+
+text-align:center;
+
+font-size:15px;
+
+color:#bbbbbb;
+
+}
+
+.secure{
+
+margin-top:26px;
+
+text-align:center;
+
+font-size:13px;
+
+color:#777;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<img
+class="flag"
+src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
+
+<div class="container">
+
+<div class="logo">
+
+SAY BOI
+
+</div>
+
+<p class="subtitle">
+
+Secure Checkout
+
+</p>
+
+<div class="card">
+
+<div class="badge">
+
+Premium Access
+
+</div>
+
+<div
+id="courseName"
+class="course">
+
+Loading...
+
+</div>
+
+<div
+id="coursePrice"
+class="price">
+
+</div>
+
+<div class="line"></div>
+<div class="feature">
+    <span>📚 Full English Course</span>
+    <span>Included</span>
+</div>
+
+<div class="feature">
+    <span>♾ Lifetime Access</span>
+    <span>Yes</span>
+</div>
+
+<div class="feature">
+    <span>🚀 Future Updates</span>
+    <span>Free</span>
+</div>
+
+<div class="feature">
+    <span>🎓 Certificate</span>
+    <span>Included</span>
+</div>
+
+<div class="feature">
+    <span>📱 Telegram Access</span>
+    <span>Instant</span>
+</div>
+
+</div>
+
+<button
+class="checkout"
+onclick="createPayment()">
+
+🔒 Secure Checkout
+
+</button>
+
+<button
+class="back"
+onclick="history.back()">
+
+← Back
+
+</button>
+
+<div
+id="loader"
+class="loader">
+
+Creating secure payment...
+
+</div>
+
+<div class="secure">
+
+🔒 Secure payment powered by LiqPay
+
+</div>
+
+</div>
+
+<script>
+
+Telegram.WebApp.ready();
+
+Telegram.WebApp.expand();
+
+Telegram.WebApp.disableVerticalSwipes();
+
+const params=new URLSearchParams(window.location.search);
+
+const course=params.get("course") || "premium";
+
+let courseName="";
+let coursePrice=0;
+
+switch(course){
+
+case "premium":
+
+courseName="👑 English Premium";
+
+coursePrice=1500;
+
+break;
+
+default:
+
+courseName="👑 English Premium";
+
+coursePrice=1500;
+
+}
+
+document.getElementById("courseName").innerHTML=courseName;
+
+document.getElementById("coursePrice").innerHTML=coursePrice+" грн";
+const BACKEND_URL="https://sayboi-backend.onrender.com";
+
+async function createPayment(){
+
+document.getElementById("loader").style.display="block";
+
+try{
+
+let telegramId="guest";
+
+if(window.Telegram &&
+Telegram.WebApp &&
+Telegram.WebApp.initDataUnsafe &&
+Telegram.WebApp.initDataUnsafe.user){
+
+telegramId=Telegram.WebApp.initDataUnsafe.user.id;
+
+}
+
+const response=await fetch(
+
+BACKEND_URL+"/create-payment",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+telegram_id:telegramId,
+
+course:course
+
+})
+
+}
+
+);
+
+const payment=await response.json();
+
+document.getElementById("loader").style.display="none";
+
+if(!payment.success){
+
+alert("Unable to create payment.");
+
+return;
+
+}
+
+const form=document.createElement("form");
+
+form.method="POST";
+
+form.action=payment.checkout_url;
+
+form.style.display="none";
+
+const data=document.createElement("input");
+
+data.type="hidden";
+
+data.name="data";
+
+data.value=payment.data;
+
+form.appendChild(data);
+
+const signature=document.createElement("input");
+
+signature.type="hidden";
+
+signature.name="signature";
+
+signature.value=payment.signature;
+
+form.appendChild(signature);
+
+document.body.appendChild(form);
+
+form.submit();
+
+}
+
+catch(error){
+
+document.getElementById("loader").style.display="none";
+
+console.error(error);
+
+alert("Connection to server failed.");
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

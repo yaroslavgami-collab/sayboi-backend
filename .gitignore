@@ -1,0 +1,8 @@
+Git-*.exe
+*.zip
+Python Script (2).py
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>SAY BOI | Payment</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+html{
+
+height:100%;
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
+
+}
+
+body{
+
+background:#080808;
+
+color:white;
+
+min-height:100vh;
+
+overflow-y:auto;
+
+position:relative;
+
+padding:40px 20px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+.flag{
+
+position:fixed;
+
+top:50%;
+
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:900px;
+
+opacity:.05;
+
+pointer-events:none;
+
+z-index:0;
+
+}
+
+.overlay{
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.45);
+
+backdrop-filter:blur(3px);
+
+z-index:1;
+
+}
+
+.container{
+
+position:relative;
+
+z-index:2;
+
+width:100%;
+
+max-width:420px;
+
+animation:fade .5s;
+
+}
+
+h1{
+
+text-align:center;
+
+font-size:34px;
+
+margin-bottom:8px;
+
+font-weight:700;
+
+}
+
+.subtitle{
+
+text-align:center;
+
+color:#8d8d8d;
+
+margin-bottom:30px;
+
+}
+
+.card{
+
+background:#171717;
+
+border:1px solid #2b2b2b;
+
+border-radius:22px;
+
+padding:24px;
+
+margin-bottom:25px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+
+}
+
+.courseName{
+
+font-size:24px;
+
+font-weight:600;
+
+margin-bottom:10px;
+
+}
+
+.coursePrice{
+
+font-size:38px;
+
+font-weight:700;
+
+}
+
+.payButton{
+
+width:100%;
+
+height:62px;
+
+border:none;
+
+border-radius:18px;
+
+margin-top:16px;
+
+background:#191919;
+
+border:1px solid #313131;
+
+color:white;
+
+font-size:18px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+.payButton:hover{
+
+background:#252525;
+
+transform:translateY(-2px);
+
+}
+
+.payButton:active{
+
+transform:scale(.98);
+
+}
+
+.back{
+
+background:transparent;
+
+}
+
+.secure{
+
+margin-top:28px;
+
+text-align:center;
+
+font-size:13px;
+
+color:#7c7c7c;
+
+}
+
+.loader{
+
+display:none;
+
+margin-top:25px;
+
+text-align:center;
+
+color:#cfcfcf;
+
+font-size:15px;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+transform:translateY(25px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<img
+class="flag"
+src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
+
+<div class="container">
+
+<h1>Payment</h1>
+
+<p class="subtitle">
+
+Choose payment method
+
+</p>
+
+<div class="card">
+
+<div
+id="courseName"
+class="courseName">
+
+Loading...
+
+</div>
+
+<div
+id="coursePrice"
+class="coursePrice">
+
+</div>
+
+</div>
+<button
+class="payButton"
+onclick="payApple()">
+
+ Apple Pay
+
+</button>
+
+<button
+class="payButton"
+onclick="payCard()">
+
+💳 Pay by Card
+
+</button>
+
+<button
+class="payButton back"
+onclick="goBack()">
+
+← Back
+
+</button>
+
+<div
+id="loader"
+class="loader">
+
+Creating secure payment...
+
+</div>
+
+<div class="secure">
+
+🔒 Secure payment powered by LiqPay
+
+</div>
+
+</div>
+
+<script>
+
+if(window.Telegram){
+
+Telegram.WebApp.ready();
+
+Telegram.WebApp.expand();
+
+Telegram.WebApp.disableVerticalSwipes();
+
+}
+
+const params=new URLSearchParams(window.location.search);
+
+const course=params.get("course") || "starter";
+
+let courseName="";
+let coursePrice=0;
+
+switch(course){
+
+case "starter":
+
+courseName="🇬🇧 English Starter";
+
+coursePrice=500;
+
+break;
+
+case "plus":
+
+courseName="🚀 English Plus";
+
+coursePrice=1000;
+
+break;
+
+case "premium":
+
+courseName="👑 English Premium";
+
+coursePrice=1500;
+
+break;
+
+default:
+
+courseName="English Course";
+
+coursePrice=500;
+
+}
+
+document.getElementById("courseName").innerHTML=courseName;
+
+document.getElementById("coursePrice").innerHTML=coursePrice+" грн";
+const BACKEND_URL = "https://sayboi-backend.onrender.com";
+
+async function createPayment() {
+
+    document.getElementById("loader").style.display="block";
+
+    try{
+
+        const telegramId =
+            window.Telegram &&
+            Telegram.WebApp &&
+            Telegram.WebApp.initDataUnsafe &&
+            Telegram.WebApp.initDataUnsafe.user
+            ? Telegram.WebApp.initDataUnsafe.user.id
+            : "123456789";
+
+        const response = await fetch(
+            BACKEND_URL + "/create-payment",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    telegram_id:telegramId,
+
+                    course:course
+
+                })
+
+            }
+        );
+
+        const payment = await response.json();
+
+        document.getElementById("loader").style.display="none";
+
+        if(!payment.success){
+
+            alert("Ошибка создания платежа");
+
+            return;
+
+        }
+
+        const form=document.createElement("form");
+
+        form.method="POST";
+
+        form.action=payment.checkout_url;
+
+        form.target="_self";
+
+        const data=document.createElement("input");
+
+        data.type="hidden";
+
+        data.name="data";
+
+        data.value=payment.data;
+
+        form.appendChild(data);
+
+        const signature=document.createElement("input");
+
+        signature.type="hidden";
+
+        signature.name="signature";
+
+        signature.value=payment.signature;
+
+        form.appendChild(signature);
+
+        document.body.appendChild(form);
+
+        form.submit();
+
+    }
+
+    catch(error){
+
+        document.getElementById("loader").style.display="none";
+
+        console.error(error);
+
+        alert("Не удалось подключиться к серверу.");
+
+    }
+
+}
+
+function payCard(){
+
+    createPayment();
+
+}
+
+function payApple(){
+
+    createPayment();
+
+}
+
+function goBack(){
+
+    history.back();
+
+}
+
+</script>
+
+</body>
+
+</html>
