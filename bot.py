@@ -1,4 +1,5 @@
 from database import init_database, add_user, get_user
+
 from telegram import (
     Update,
     ReplyKeyboardMarkup,
@@ -11,12 +12,15 @@ from telegram.ext import (
     CommandHandler,
     MessageHandler,
     ContextTypes,
-    filters
+    filters,
+    TypeHandler
 )
 
-TOKEN = "8954124854:AAGczlEeHPxiT1saoytPzrXHhLHPhXWia6A"
+CHANNEL_ID = -1004410613751
+TOKEN = "8954124854:AAEiICvyl4jb9saJgrgM5DiC77iBDdwqTls"
 
 WEBAPP_URL = "https://sayboi.netlify.app"
+
 
 menu = ReplyKeyboardMarkup(
     [
@@ -27,7 +31,15 @@ menu = ReplyKeyboardMarkup(
     resize_keyboard=True
 )
 
+async def create_channel_invite(bot, telegram_id):
 
+    invite = await bot.create_chat_invite_link(
+        chat_id=CHANNEL_ID,
+        name=f"premium_{telegram_id}",
+        member_limit=1
+    )
+
+    return invite.invite_link
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
@@ -46,6 +58,7 @@ Choose an option below.""",
         reply_markup=menu
     )
 
+
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
@@ -62,14 +75,27 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "📈 Progress":
 
         await update.message.reply_text(
-            "📈 Progress\n\n□□□□□□□□□□\n0%"
+            "📈 Progress\n\n"
+            "□□□□□□□□□□\n"
+            "0%"
         )
 
     elif text == "💬 Support":
 
         await update.message.reply_text(
-            "Support:\n\n@sayboi_support"
+            "Support:\n\n"
+            "@sayboi_support"
         )
+
+
+async def channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.channel_post:
+
+        print("================================")
+        print("CHANNEL ID:", update.channel_post.chat.id)
+        print("CHANNEL:", update.channel_post.chat.title)
+        print("================================")
 
 
 def main():
@@ -78,7 +104,13 @@ def main():
 
     app = Application.builder().token(TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start))
+    app.add_handler(
+        CommandHandler("start", start)
+    )
+
+    app.add_handler(
+        TypeHandler(Update, channel_post)
+    )
 
     app.add_handler(
         MessageHandler(
