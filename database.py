@@ -282,6 +282,18 @@ def get_account_by_login(login):
     return account
 
 
+def has_teacher():
+    conn = get_connection()
+
+    row = conn.execute(
+        "SELECT 1 FROM accounts WHERE role = 'teacher' LIMIT 1"
+    ).fetchone()
+
+    conn.close()
+
+    return row is not None
+
+
 def get_account_by_telegram_id(telegram_id):
     conn = get_connection()
 

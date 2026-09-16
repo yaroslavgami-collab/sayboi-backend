@@ -16,6 +16,7 @@ from database import (
     get_or_create_student_account,
     create_teacher_account,
     get_user,
+    has_teacher,
 )
 
 from liqpay_service import liqpay
@@ -61,6 +62,28 @@ def inject_account():
 
 
 init_database()
+
+
+def bootstrap_teacher_account():
+    """При первом запуске (пока в базі немає жодного вчителя) створює
+    обліковий запис і друкує логін/пароль у лог сервера один раз."""
+
+    if has_teacher():
+        return
+
+    login, password = create_teacher_account(
+        os.getenv("BOOTSTRAP_TEACHER_NAME", "Викладач")
+    )
+
+    print("=" * 50)
+    print("АВТОСТВОРЕННЯ ОБЛІКОВОГО ЗАПИСУ ВЧИТЕЛЯ")
+    print(f"Логін:  {login}")
+    print(f"Пароль: {password}")
+    print("Збережіть цей пароль — у логах він більше не з'явиться.")
+    print("=" * 50)
+
+
+bootstrap_teacher_account()
 
 
 @app.cli.command("create-teacher")
