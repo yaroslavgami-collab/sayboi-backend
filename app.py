@@ -35,7 +35,7 @@ CHANNEL_ID = -1004410613751
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi.onrender.com")
+PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi-backend.onrender.com")
 
 
 # ==========================================

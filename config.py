@@ -17,7 +17,7 @@ PRIVATE_KEY = os.getenv("LIQPAY_PRIVATE_KEY")
 # Backend
 # =========================
 
-BASE_URL = "https://sayboi.onrender.com"
+BASE_URL = "https://sayboi-backend.onrender.com"
 
 
 # =========================
