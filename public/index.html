@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="viewport"
@@ -9,7 +8,7 @@ content="width=device-width,
 initial-scale=1,
 maximum-scale=1,
 viewport-fit=cover">
-<title>Payment Successful</title>
+<title>SAY BOI</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,7 +33,9 @@ background:#090909;
 color:white;
 
 display:flex;
+
 justify-content:center;
+
 align-items:center;
 
 height:100vh;
@@ -51,9 +52,11 @@ position:absolute;
 
 width:950px;
 
-opacity:.05;
+opacity:.06;
 
 pointer-events:none;
+
+user-select:none;
 
 }
 
@@ -64,6 +67,7 @@ pointer-events:none;
 position:absolute;
 
 width:100%;
+
 height:100%;
 
 background:rgba(0,0,0,.45);
@@ -80,23 +84,23 @@ position:relative;
 
 z-index:10;
 
-width:90%;
+width:88%;
 
-max-width:390px;
+max-width:380px;
 
 text-align:center;
 
-animation:fade .7s;
+animation:fade .8s ease;
 
 }
 
-/* Галочка */
+/* Логотип */
 
-.success{
+.logo{
 
-width:110px;
+width:90px;
 
-height:110px;
+height:90px;
 
 margin:auto;
 
@@ -112,79 +116,51 @@ justify-content:center;
 
 align-items:center;
 
-font-size:58px;
+font-size:30px;
 
-color:#4ADE80;
+font-weight:700;
 
-box-shadow:0 0 40px rgba(74,222,128,.12);
+letter-spacing:2px;
+
+box-shadow:0 0 35px rgba(255,255,255,.03);
 
 }
+
+/* Заголовок */
 
 h1{
 
 margin-top:28px;
 
-font-size:31px;
+font-size:34px;
 
 font-weight:700;
+
+letter-spacing:2px;
 
 }
 
 .subtitle{
 
-margin-top:14px;
-
-color:#9a9a9a;
+margin-top:12px;
 
 font-size:16px;
 
 line-height:1.7;
 
-}
-
-/* Информация */
-
-.info{
-
-margin-top:35px;
-
-background:#171717;
-
-border:1px solid #2d2d2d;
-
-border-radius:22px;
-
-padding:22px;
-
-}
-
-.info h2{
-
-font-size:18px;
-
-margin-bottom:12px;
-
-}
-
-.info p{
-
 color:#9d9d9d;
-
-line-height:1.7;
-
-font-size:15px;
 
 }
 
 /* Кнопки */
 
-button{
+.btn{
 
 width:100%;
 
-height:60px;
+height:58px;
 
-margin-top:18px;
+margin-top:22px;
 
 border:none;
 
@@ -192,11 +168,9 @@ border-radius:18px;
 
 background:#181818;
 
-border:1px solid #2d2d2d;
-
 color:white;
 
-font-size:18px;
+font-size:17px;
 
 font-weight:600;
 
@@ -204,17 +178,19 @@ cursor:pointer;
 
 transition:.25s;
 
+border:1px solid #2c2c2c;
+
 }
 
-button:hover{
+.btn:hover{
 
-background:#242424;
+background:#222;
 
 transform:translateY(-2px);
 
 }
 
-button:active{
+.btn:active{
 
 transform:scale(.98);
 
@@ -226,9 +202,11 @@ background:transparent;
 
 }
 
+/* Нижний текст */
+
 .footer{
 
-margin-top:28px;
+margin-top:45px;
 
 font-size:13px;
 
@@ -244,7 +222,7 @@ from{
 
 opacity:0;
 
-transform:translateY(25px);
+transform:translateY(20px);
 
 }
 
@@ -271,64 +249,30 @@ src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.s
 
 <div class="container">
 
-<div class="success">
-
-✓
-
+<div class="logo">
+SB
 </div>
 
-<h1>
-
-Payment Successful
-
-</h1>
+<h1>SAY BOI</h1>
 
 <p class="subtitle">
-
-Welcome to SAY BOI.<br>
-
-Your course has been unlocked.
-
+Learn real English.<br>
+Speak naturally.<br>
+Without boring lessons.
 </p>
 
-<div class="info">
-
-<h2>
-
-🎉 Congratulations!
-
-</h2>
-
-<p>
-
-Thank you for your purchase.
-
-You now have full access to your English course.
-
-Start learning whenever you want.
-
-</p>
-
-</div>
-
-<button onclick="openCourse()">
-
-Open Course →
-
+<button class="btn"
+onclick="window.location.href='courses.html'+window.location.hash">
+Buy Course →
 </button>
 
-<button class="secondary"
-
-onclick="window.location.href='index.html'">
-
-Home
-
+<button class="btn secondary"
+onclick="Telegram.WebApp.close()">
+Back
 </button>
 
 <div class="footer">
-
-Thank you for choosing SAY BOI
-
+Premium English Learning
 </div>
 
 </div>
@@ -345,14 +289,7 @@ Telegram.WebApp.disableVerticalSwipes();
 
 }
 
-function openCourse(){
-
-alert("Here your course will open.");
-
-}
-
 </script>
 
 </body>
-
 </html>

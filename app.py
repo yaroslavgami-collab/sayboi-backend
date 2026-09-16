@@ -4,7 +4,7 @@ import base64
 import json
 import requests
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
 from database import (
@@ -36,6 +36,8 @@ CHANNEL_ID = -1004410613751
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi-backend.onrender.com")
+
+PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "public")
 
 
 # ==========================================
@@ -240,13 +242,28 @@ def send_platform_credentials(telegram_id, login, password):
 
 
 # ==========================================
-# HOME
+# PUBLIC PAGES (лендінг, курси, оплата)
 # ==========================================
 
 @app.route("/")
 def home():
+    return send_from_directory(PUBLIC_DIR, "index.html")
 
-    return "SAY BOI Backend работает"
+
+@app.route("/courses.html")
+def courses_page():
+    return send_from_directory(PUBLIC_DIR, "courses.html")
+
+
+@app.route("/payment.html")
+def payment_page():
+    return send_from_directory(PUBLIC_DIR, "payment.html")
+
+
+@app.route("/success")
+@app.route("/success.html")
+def success_page():
+    return send_from_directory(PUBLIC_DIR, "success.html")
 
 
 # ==========================================
