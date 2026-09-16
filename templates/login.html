@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Вхід — SAY BOI{% endblock %}
 {% block content %}
-<div class="login-wrap">
-  <div class="card login-card">
-    <h2>Вхід до кабінету</h2>
-    <p class="muted">Учень або вчитель — введіть логін і пароль, які отримали в Telegram.</p>
-    <form method="post">
-      <label for="login">Логін</label>
-      <input type="text" id="login" name="login" required autofocus>
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="brand-mark-lg">SB</div>
+    <h1 class="auth-title">SAY BOI</h1>
+    <p class="auth-subtitle">Платформа для навчання</p>
 
-      <label for="password">Пароль</label>
-      <input type="password" id="password" name="password" required>
+    <div class="card auth-card">
+      <span class="badge">🔐 Особистий кабінет</span>
 
-      <button class="btn" type="submit">Увійти</button>
-    </form>
+      <form method="post">
+        <label for="login">Логін</label>
+        <input type="text" id="login" name="login" required autofocus autocomplete="username">
+
+        <label for="password">Пароль</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+
+        <button class="btn btn-full" type="submit">Увійти</button>
+      </form>
+    </div>
+
+    <p class="auth-footnote">🔒 Учень або вчитель — логін і пароль надійшли вам у Telegram</p>
   </div>
 </div>
 {% endblock %}

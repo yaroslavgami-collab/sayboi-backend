@@ -3,7 +3,13 @@
 {% block content %}
 <div class="card">
   <a class="muted" href="{{ url_for('student.dashboard') }}">&larr; До списку уроків</a>
-  <h1>{{ lesson.title }} <span class="badge {{ status }}">{{ status }}</span></h1>
+  <h1>{{ lesson.title }}
+    <span class="badge {{ status }}">
+      {% if status == 'completed' %}завершено
+      {% elif status == 'unlocked' %}доступно
+      {% else %}заблоковано{% endif %}
+    </span>
+  </h1>
 
   {% if lesson.video_url %}
     <p><a class="btn secondary" href="{{ lesson.video_url }}" target="_blank" rel="noopener">▶ Відкрити відео уроку</a></p>

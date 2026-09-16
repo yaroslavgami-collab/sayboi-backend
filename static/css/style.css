@@ -1,158 +1,363 @@
 :root {
-  --bg: #0f1115;
-  --card: #171a21;
-  --border: #262b36;
-  --text: #eef0f4;
-  --muted: #8b93a3;
-  --accent: #ffcc33;
-  --accent-text: #14161b;
-  --success: #3ecf8e;
-  --error: #ef5b5b;
-  --locked: #3a3f4b;
-  --radius: 10px;
+  --bg: #090909;
+  --card: #151515;
+  --card-alt: #171717;
+  --border: #2c2c2c;
+  --divider: #2a2a2a;
+  --input-bg: #101010;
+  --text: #ffffff;
+  --muted: #939393;
+  --muted-2: #6b6b6b;
+  --pill-bg: #202020;
+  --pill-text: #d7d7d7;
+  --success: #6fdb96;
+  --success-bg: rgba(111, 219, 150, 0.12);
+  --danger: #ff6b6b;
+  --danger-bg: rgba(255, 107, 107, 0.1);
+  --danger-border: rgba(255, 107, 107, 0.35);
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
 }
 
 * { box-sizing: border-box; }
 
+html { overflow-y: auto; }
+
 body {
   margin: 0;
-  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+  min-height: 100vh;
+  position: relative;
 }
 
+/* Фірмовий watermark-прапор, як на сайті оплати */
+
+.flag-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 950px;
+  max-width: none;
+  opacity: 0.045;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.overlay-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: 0;
+}
+
+/* Верхня панель */
+
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 14px 28px;
+  background: rgba(9, 9, 9, 0.75);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 
-.topbar a { color: var(--text); text-decoration: none; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.3px;
+}
 
-.topbar .brand { font-weight: 700; color: var(--accent); }
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
 
-.topbar nav a { margin-left: 16px; color: var(--muted); }
-.topbar nav a:hover { color: var(--text); }
+.topbar nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topbar nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: 0.2s;
+}
+
+.topbar nav a:hover { color: var(--text); background: var(--pill-bg); }
+
+.topbar nav .nav-user {
+  color: var(--muted-2);
+  font-size: 13px;
+  padding: 0 10px;
+}
+
+.topbar nav .nav-logout {
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* Контейнер сторінки */
 
 .container {
-  max-width: 960px;
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 32px 24px 64px;
 }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-
-h1, h2, h3 { margin-top: 0; }
+h1, h2, h3 { margin-top: 0; font-weight: 800; letter-spacing: 0.2px; }
+h1 { font-size: 26px; margin-bottom: 6px; }
+h2 { font-size: 20px; }
+h3 { font-size: 16px; }
 
 .muted { color: var(--muted); }
 
 .flash {
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
   font-size: 14px;
+  border: 1px solid transparent;
 }
 
-.flash.success { background: rgba(62, 207, 142, 0.15); color: var(--success); }
-.flash.error { background: rgba(239, 91, 91, 0.15); color: var(--error); }
+.flash.success { background: var(--success-bg); color: var(--success); border-color: rgba(111, 219, 150, 0.25); }
+.flash.error { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
 
-form { display: flex; flex-direction: column; gap: 10px; }
+/* Картки */
 
-label { font-size: 13px; color: var(--muted); }
+.card {
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+/* Форми */
+
+form { display: flex; flex-direction: column; gap: 12px; }
+
+label { font-size: 13px; color: var(--muted); font-weight: 500; }
 
 input, textarea, select {
-  background: #0f1115;
+  background: var(--input-bg);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-textarea { min-height: 140px; resize: vertical; }
+input:focus, textarea:focus, select:focus { border-color: #4a4a4a; }
+
+textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+
+/* Кнопки */
 
 .btn {
-  display: inline-block;
-  background: var(--accent);
-  color: var(--accent-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 22px;
+  background: #ffffff;
+  color: #0a0a0a;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
   text-decoration: none;
-  font-size: 14px;
+  transition: 0.2s;
+  white-space: nowrap;
 }
 
+.btn:hover { background: #e9e9e9; transform: translateY(-1px); }
+.btn:active { transform: scale(0.98); }
+
 .btn.secondary {
-  background: transparent;
+  background: var(--card-alt);
   color: var(--text);
   border: 1px solid var(--border);
 }
 
-.btn.danger { background: var(--error); color: white; }
+.btn.secondary:hover { background: var(--pill-bg); }
 
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+
+.btn.danger:hover { background: rgba(255, 107, 107, 0.18); }
+
+.btn-full { width: 100%; height: 56px; font-size: 16px; margin-top: 4px; }
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Рядки уроків/списків */
 
 .lesson-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--divider);
 }
 
 .lesson-row:last-child { border-bottom: none; }
 
+/* Бейджі-пігулки */
+
 .badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 5px 13px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  white-space: nowrap;
 }
 
-.badge.completed { background: rgba(62, 207, 142, 0.15); color: var(--success); }
-.badge.unlocked { background: rgba(255, 204, 51, 0.15); color: var(--accent); }
-.badge.locked { background: rgba(255,255,255,0.06); color: var(--muted); }
-.badge.draft { background: rgba(255,255,255,0.06); color: var(--muted); }
+.badge.completed { background: var(--success-bg); color: var(--success); }
+.badge.unlocked { background: var(--pill-bg); color: var(--text); }
+.badge.locked { background: #131313; color: var(--muted-2); border: 1px dashed var(--border); }
+.badge.draft { background: #131313; color: var(--muted-2); }
+
+/* Прогрес */
 
 .progress-bar {
-  background: #0f1115;
+  background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: 999px;
   height: 10px;
   overflow: hidden;
-  margin: 8px 0 16px;
+  margin: 10px 0 16px;
 }
 
 .progress-bar-fill {
-  background: var(--accent);
+  background: linear-gradient(90deg, #ffffff, #c9c9c9);
   height: 100%;
+  border-radius: inherit;
+  transition: width 0.4s ease;
 }
 
 .course-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
 
+/* Таблиці */
+
 table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
-th { color: var(--muted); font-weight: 600; }
 
-.lesson-content { line-height: 1.6; white-space: pre-wrap; }
+th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--divider); font-size: 14px; }
 
-.login-wrap {
-  min-height: 100vh;
+th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+.lesson-content { line-height: 1.75; white-space: pre-wrap; color: #e6e6e6; }
+
+/* Екран входу / зміни пароля */
+
+.auth-wrap {
+  min-height: calc(100vh - 64px);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px 0;
 }
 
-.login-card { width: 100%; max-width: 360px; }
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: auth-show 0.45s ease;
+}
+
+.brand-mark-lg {
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.04);
+}
+
+.auth-title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.auth-card {
+  text-align: left;
+  background: var(--card);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
+}
+
+.auth-card .badge { margin-bottom: 18px; }
+
+.auth-footnote {
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--muted-2);
+  line-height: 1.6;
+}
+
+@keyframes auth-show {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .topbar { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
+  .container { padding: 20px 16px 48px; }
+  .lesson-row { flex-direction: column; align-items: flex-start; }
+}

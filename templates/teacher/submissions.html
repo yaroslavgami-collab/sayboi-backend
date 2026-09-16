@@ -13,7 +13,11 @@
 
 {% for s in submissions %}
 <div class="card">
-  <h3>{{ s.full_name or s.login }} <span class="badge {{ 'completed' if s.status == 'reviewed' else 'unlocked' }}">{{ s.status }}</span></h3>
+  <h3>{{ s.full_name or s.login }}
+    <span class="badge {{ 'completed' if s.status == 'reviewed' else 'unlocked' }}">
+      {{ 'перевірено' if s.status == 'reviewed' else 'надіслано' }}
+    </span>
+  </h3>
   <p>{{ s.answer_text }}</p>
   <p class="muted">Надіслано: {{ s.submitted_at }}{% if s.score is not none %} · Оцінка: {{ s.score }}{% endif %}</p>
 

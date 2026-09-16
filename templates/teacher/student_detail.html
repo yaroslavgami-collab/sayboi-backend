@@ -13,7 +13,13 @@
 
 {% for entry in lessons_with_status %}
 <div class="card">
-  <h3>{{ entry.lesson.title }} <span class="badge {{ entry.status }}">{{ entry.status }}</span></h3>
+  <h3>{{ entry.lesson.title }}
+    <span class="badge {{ entry.status }}">
+      {% if entry.status == 'completed' %}завершено
+      {% elif entry.status == 'unlocked' %}доступно
+      {% else %}заблоковано{% endif %}
+    </span>
+  </h3>
 
   {% if not entry.assignments %}
     <p class="muted">Завдань немає.</p>
@@ -24,7 +30,7 @@
         <strong>{{ a.title }}</strong>
         {% if submission %}
           <p>Відповідь: {{ submission.answer_text }}</p>
-          <p class="muted">Статус: {{ submission.status }}{% if submission.score is not none %} · Оцінка: {{ submission.score }}{% endif %}</p>
+          <p class="muted">Статус: {{ 'перевірено' if submission.status == 'reviewed' else 'надіслано' }}{% if submission.score is not none %} · Оцінка: {{ submission.score }}{% endif %}</p>
           <form method="post" action="{{ url_for('teacher.grade', submission_id=submission.id) }}" class="btn-row" style="align-items: end;">
             <input type="hidden" name="redirect_to" value="{{ request.path }}">
             <div>
