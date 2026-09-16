@@ -28,7 +28,6 @@ PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi-backend.onrender.com")
 menu = ReplyKeyboardMarkup(
     [
         [KeyboardButton("🔑 Особистий кабінет", web_app=WebAppInfo(f"{PLATFORM_URL}/login"))],
-        [KeyboardButton("📚 Курси", web_app=WebAppInfo(PLATFORM_URL))],
         [KeyboardButton("👤 Профіль"), KeyboardButton("📈 Прогрес")],
         [KeyboardButton("💬 Підтримка")]
     ],
