@@ -24,12 +24,15 @@ TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 WEBAPP_URL = "https://sayboi.netlify.app"
 
+PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi-backend.onrender.com")
+
 
 menu = ReplyKeyboardMarkup(
     [
-        [KeyboardButton("📚 My Course", web_app=WebAppInfo(WEBAPP_URL))],
-        [KeyboardButton("👤 Profile"), KeyboardButton("📈 Progress")],
-        [KeyboardButton("💬 Support")]
+        [KeyboardButton("🔑 Особистий кабінет", web_app=WebAppInfo(f"{PLATFORM_URL}/login"))],
+        [KeyboardButton("📚 Курси", web_app=WebAppInfo(WEBAPP_URL))],
+        [KeyboardButton("👤 Профіль"), KeyboardButton("📈 Прогрес")],
+        [KeyboardButton("💬 Підтримка")]
     ],
     resize_keyboard=True
 )
@@ -53,11 +56,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     await update.message.reply_text(
-        f"""👋 Welcome, {user.first_name}!
+        f"""👋 Вітаємо, {user.first_name}!
 
-Welcome to SAY BOI.
+Ласкаво просимо до SAY BOI.
 
-Choose an option below.""",
+Обери опцію нижче.""",
         reply_markup=menu
     )
 
@@ -66,27 +69,27 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
 
-    if text == "👤 Profile":
+    if text == "👤 Профіль":
 
         await update.message.reply_text(
-            "👤 Profile\n\n"
+            "👤 Профіль\n\n"
             "Premium: ❌\n"
-            "Progress: 0%\n"
-            "Lessons completed: 0"
+            "Прогрес: 0%\n"
+            "Уроків завершено: 0"
         )
 
-    elif text == "📈 Progress":
+    elif text == "📈 Прогрес":
 
         await update.message.reply_text(
-            "📈 Progress\n\n"
+            "📈 Прогрес\n\n"
             "□□□□□□□□□□\n"
             "0%"
         )
 
-    elif text == "💬 Support":
+    elif text == "💬 Підтримка":
 
         await update.message.reply_text(
-            "Support:\n\n"
+            "Підтримка:\n\n"
             "@sayboi_support"
         )
 
