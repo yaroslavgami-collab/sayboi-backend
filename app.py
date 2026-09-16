@@ -417,39 +417,6 @@ def liqpay_callback():
             print("ERROR: Could not send platform credentials")
 
 
-    # ======================================
-    # CREATE CHANNEL INVITE
-    # ======================================
-
-    invite_link = create_channel_invite()
-
-
-    if not invite_link:
-
-        print(
-            "ERROR: Could not create Telegram invite"
-        )
-
-        return "Premium activated, invite failed", 200
-
-
-    # ======================================
-    # SEND INVITE TO USER
-    # ======================================
-
-    sent = send_telegram_message(
-        telegram_id,
-        invite_link
-    )
-
-
-    if not sent:
-
-        print(
-            "ERROR: Could not send Telegram message"
-        )
-
-
     return "OK", 200
 
 
