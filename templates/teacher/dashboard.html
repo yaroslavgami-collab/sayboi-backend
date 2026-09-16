@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Кабінет вчителя{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="btn-row" style="justify-content: space-between; align-items: center;">
+    <h1 style="margin:0;">Уроки курсів</h1>
+    <a class="btn" href="{{ url_for('teacher.new_lesson') }}">+ Новий урок</a>
+  </div>
+  <p class="muted">Учнів у системі: {{ students_count }} · <a href="{{ url_for('teacher.students') }}">переглянути список</a></p>
+</div>
+
+{% for course in courses %}
+<div class="card">
+  <h3>{{ course|capitalize }}</h3>
+
+  {% set lessons = lessons_by_course.get(course, []) %}
+
+  {% if not lessons %}
+    <p class="muted">Уроків ще немає.</p>
+  {% else %}
+    {% for lesson in lessons %}
+    <div class="lesson-row">
+      <div>
+        <strong>{{ lesson.order_index }}. {{ lesson.title }}</strong>
+        {% if not lesson.is_published %}<span class="badge draft">чернетка</span>{% endif %}
+        {% if lesson.scheduled_at %}<span class="muted"> · відкриється {{ lesson.scheduled_at }}</span>{% endif %}
+      </div>
+      <div class="btn-row">
+        <a class="btn secondary" href="{{ url_for('teacher.edit_lesson', lesson_id=lesson.id) }}">Редагувати</a>
+        <form method="post" action="{{ url_for('teacher.remove_lesson', lesson_id=lesson.id) }}" onsubmit="return confirm('Видалити урок?');">
+          <button class="btn danger" type="submit">Видалити</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

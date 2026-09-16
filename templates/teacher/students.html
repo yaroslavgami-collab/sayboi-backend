@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Учні{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Учні</h1>
+
+  {% if not students %}
+    <p class="muted">Учнів поки немає.</p>
+  {% else %}
+  <table>
+    <thead>
+      <tr><th>Ім'я</th><th>Логін</th><th>Курс</th><th>Реєстрація</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.full_name or '—' }}</td>
+        <td>{{ s.login }}</td>
+        <td>{{ (s.course or '—')|capitalize }}</td>
+        <td class="muted">{{ s.created_at }}</td>
+        <td><a class="btn secondary" href="{{ url_for('teacher.student_detail', student_id=s.id) }}">Прогрес</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

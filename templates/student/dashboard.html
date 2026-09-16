@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Мій курс{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Вітаємо, {{ account.full_name or account.login }}!</h1>
+  <p class="muted">Курс: {{ (account.course or '—')|capitalize }}</p>
+
+  <div class="progress-bar"><div class="progress-bar-fill" style="width: {{ progress }}%;"></div></div>
+  <p class="muted">Прогрес: {{ progress }}%</p>
+</div>
+
+{% if not lessons_with_status %}
+<div class="card"><p class="muted">Уроки ще не додано. Загляньте пізніше.</p></div>
+{% endif %}
+
+{% for entry in lessons_with_status %}
+<div class="lesson-row card" style="{% if entry.status == 'locked' %}opacity: 0.6;{% endif %}">
+  <div>
+    <strong>{{ entry.lesson.title }}</strong>
+    {% if entry.lesson.scheduled_at and entry.status == 'locked' %}
+      <div class="muted">Відкриється: {{ entry.lesson.scheduled_at }}</div>
+    {% endif %}
+  </div>
+  <div class="btn-row" style="align-items: center;">
+    <span class="badge {{ entry.status }}">
+      {% if entry.status == 'completed' %}завершено
+      {% elif entry.status == 'unlocked' %}доступно
+      {% else %}заблоковано{% endif %}
+    </span>
+    {% if entry.status != 'locked' %}
+      <a class="btn secondary" href="{{ url_for('student.lesson_view', lesson_id=entry.lesson.id) }}">Відкрити</a>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

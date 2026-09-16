@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Вхід — SAY BOI{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="card login-card">
+    <h2>Вхід до кабінету</h2>
+    <p class="muted">Учень або вчитель — введіть логін і пароль, які отримали в Telegram.</p>
+    <form method="post">
+      <label for="login">Логін</label>
+      <input type="text" id="login" name="login" required autofocus>
+
+      <label for="password">Пароль</label>
+      <input type="password" id="password" name="password" required>
+
+      <button class="btn" type="submit">Увійти</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

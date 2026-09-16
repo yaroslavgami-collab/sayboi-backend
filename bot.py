@@ -1,3 +1,5 @@
+import os
+
 from database import init_database, add_user, get_user
 
 from telegram import (
@@ -17,7 +19,8 @@ from telegram.ext import (
 )
 
 CHANNEL_ID = -1004410613751
-TOKEN = "8954124854:AAEiICvyl4jb9saJgrgM5DiC77iBDdwqTls"
+
+TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 WEBAPP_URL = "https://sayboi.netlify.app"
 

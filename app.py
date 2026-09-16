@@ -12,10 +12,18 @@ from database import (
     create_purchase,
     get_purchase,
     complete_purchase,
-    activate_premium
+    activate_premium,
+    get_or_create_student_account,
+    create_teacher_account,
+    get_user,
 )
 
 from liqpay_service import liqpay
+
+from routes_auth import auth_bp
+from routes_teacher import teacher_bp
+from routes_student import student_bp
+from auth import current_account
 
 
 # ==========================================
@@ -26,6 +34,8 @@ CHANNEL_ID = -1004410613751
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
+PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi.onrender.com")
+
 
 # ==========================================
 # APP
@@ -33,12 +43,38 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 app = Flask(__name__)
 
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key-change-me")
+
 CORS(
     app,
     origins=["https://sayboi.netlify.app"]
 )
 
+app.register_blueprint(auth_bp)
+app.register_blueprint(teacher_bp)
+app.register_blueprint(student_bp)
+
+
+@app.context_processor
+def inject_account():
+    return dict(account=current_account())
+
+
 init_database()
+
+
+@app.cli.command("create-teacher")
+def create_teacher_cli():
+    """Створює обліковий запис вчителя: flask create-teacher"""
+
+    full_name = input("Ім'я вчителя: ").strip() or "Викладач"
+
+    login, password = create_teacher_account(full_name)
+
+    print("\nОбліковий запис вчителя створено:")
+    print(f"  Логін:  {login}")
+    print(f"  Пароль: {password}")
+    print("\nЗбережіть цей пароль — він більше не показуватиметься.\n")
 
 
 # ==========================================
@@ -138,6 +174,44 @@ f"{invite_link}\n\n"
     result = response.json()
 
     print("Telegram message response:", result)
+
+    return result.get("ok", False)
+
+
+def send_platform_credentials(telegram_id, login, password):
+
+    if not TELEGRAM_TOKEN:
+        print("ERROR: TELEGRAM_TOKEN is not set")
+        return False
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{TELEGRAM_TOKEN}/sendMessage"
+    )
+
+    text = (
+        "🔑 Твій особистий кабінет на платформі SAY BOI готовий!\n\n"
+        f"Логін: {login}\n"
+        f"Пароль: {password}\n\n"
+        f"Вхід: {PLATFORM_URL}/login\n\n"
+        "⚠️ Після першого входу тобі потрібно буде "
+        "встановити власний пароль."
+    )
+
+    payload = {
+        "chat_id": telegram_id,
+        "text": text
+    }
+
+    response = requests.post(
+        url,
+        json=payload,
+        timeout=15
+    )
+
+    result = response.json()
+
+    print("Telegram credentials response:", result)
 
     return result.get("ok", False)
 
@@ -276,6 +350,31 @@ def liqpay_callback():
     # ======================================
 
     complete_purchase(order_id)
+
+
+    # ======================================
+    # CREATE PLATFORM ACCOUNT (LMS)
+    # ======================================
+
+    bot_user = get_user(telegram_id)
+    full_name = bot_user["username"] if bot_user else ""
+
+    account, plain_password = get_or_create_student_account(
+        telegram_id,
+        purchase["course"],
+        full_name
+    )
+
+    if plain_password:
+
+        credentials_sent = send_platform_credentials(
+            telegram_id,
+            account["login"],
+            plain_password
+        )
+
+        if not credentials_sent:
+            print("ERROR: Could not send platform credentials")
 
 
     # ======================================

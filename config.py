@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # =========================
 # LiqPay
@@ -13,7 +17,7 @@ PRIVATE_KEY = os.getenv("LIQPAY_PRIVATE_KEY")
 # Backend
 # =========================
 
-BASE_URL = "https://sayboi-backend.onrender.com"
+BASE_URL = "https://sayboi.onrender.com"
 
 
 # =========================

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редагування уроку' if lesson else 'Новий урок' }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ 'Редагування уроку' if lesson else 'Новий урок' }}</h1>
+
+  <form method="post" action="{{ url_for('teacher.edit_lesson', lesson_id=lesson.id) if lesson else url_for('teacher.new_lesson') }}">
+    <label for="course">Курс</label>
+    <select id="course" name="course" required>
+      {% for c in courses %}
+        <option value="{{ c }}" {% if lesson and lesson.course == c %}selected{% endif %}>{{ c|capitalize }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="order_index">Порядок (число, менше = раніше)</label>
+    <input type="number" id="order_index" name="order_index" value="{{ lesson.order_index if lesson else 0 }}">
+
+    <label for="title">Назва уроку</label>
+    <input type="text" id="title" name="title" value="{{ lesson.title if lesson else '' }}" required>
+
+    <label for="video_url">Посилання на відео (необов'язково)</label>
+    <input type="url" id="video_url" name="video_url" value="{{ lesson.video_url if lesson and lesson.video_url else '' }}">
+
+    <label for="scheduled_at">Дата відкриття уроку (необов'язково, якщо пусто — доступний одразу)</label>
+    <input type="datetime-local" id="scheduled_at" name="scheduled_at" value="{{ lesson.scheduled_at if lesson and lesson.scheduled_at else '' }}">
+
+    <label for="content">Зміст уроку</label>
+    <textarea id="content" name="content">{{ lesson.content if lesson and lesson.content else '' }}</textarea>
+
+    {% if lesson %}
+    <label>
+      <input type="checkbox" name="is_published" {% if lesson.is_published %}checked{% endif %} style="width:auto;">
+      Опубліковано (видно учням)
+    </label>
+    {% endif %}
+
+    <div class="btn-row">
+      <button class="btn" type="submit">Зберегти</button>
+      <a class="btn secondary" href="{{ url_for('teacher.dashboard') }}">Скасувати</a>
+    </div>
+  </form>
+</div>
+
+{% if lesson %}
+<div class="card">
+  <h2>Завдання уроку</h2>
+
+  {% if assignments %}
+    {% for a in assignments %}
+    <div class="lesson-row">
+      <div>
+        <strong>{{ a.order_index }}. {{ a.title }}</strong>
+        {% if a.description %}<div class="muted">{{ a.description }}</div>{% endif %}
+      </div>
+      <div class="btn-row">
+        <a class="btn secondary" href="{{ url_for('teacher.assignment_submissions', assignment_id=a.id) }}">Відповіді учнів</a>
+        <form method="post" action="{{ url_for('teacher.remove_assignment', assignment_id=a.id) }}" onsubmit="return confirm('Видалити завдання?');">
+          <button class="btn danger" type="submit">Видалити</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="muted">Завдань ще немає.</p>
+  {% endif %}
+
+  <h3>Додати завдання</h3>
+  <form method="post" action="{{ url_for('teacher.new_assignment', lesson_id=lesson.id) }}">
+    <label for="a_title">Назва завдання</label>
+    <input type="text" id="a_title" name="title" required>
+
+    <label for="a_order">Порядок</label>
+    <input type="number" id="a_order" name="order_index" value="0">
+
+    <label for="a_desc">Опис / умова завдання</label>
+    <textarea id="a_desc" name="description"></textarea>
+
+    <button class="btn" type="submit">Додати завдання</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

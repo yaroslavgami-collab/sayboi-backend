@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SAY BOI Platform{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  {% if account %}
+  <div class="topbar">
+    <a class="brand" href="{{ url_for('teacher.dashboard' if account.role == 'teacher' else 'student.dashboard') }}">SAY BOI</a>
+    <nav>
+      <span class="muted">{{ account.full_name or account.login }}</span>
+      {% if account.role == 'teacher' %}
+        <a href="{{ url_for('teacher.dashboard') }}">Уроки</a>
+        <a href="{{ url_for('teacher.students') }}">Учні</a>
+      {% endif %}
+      <a href="{{ url_for('auth.change_password') }}">Пароль</a>
+      <a href="{{ url_for('auth.logout') }}">Вийти</a>
+    </nav>
+  </div>
+  {% endif %}
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
