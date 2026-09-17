@@ -19,6 +19,8 @@ from database import (
     get_submissions_for_student,
     get_submissions_for_assignment,
     grade_submission,
+    get_teacher_overview_stats,
+    get_pending_submissions,
 )
 
 MAX_QUIZ_OPTIONS = 4
@@ -95,6 +97,7 @@ def dashboard(account):
         lessons_by_course.setdefault(lesson["course"], []).append(lesson)
 
     students = list_students()
+    stats = get_teacher_overview_stats()
 
     return render_template(
         "teacher/dashboard.html",
@@ -102,6 +105,19 @@ def dashboard(account):
         lessons_by_course=lessons_by_course,
         courses=COURSES,
         students_count=len(students),
+        stats=stats,
+    )
+
+
+@teacher_bp.route("/submissions/pending")
+@login_required(role="teacher")
+def pending_submissions(account):
+    submissions = get_pending_submissions()
+
+    return render_template(
+        "teacher/pending_submissions.html",
+        account=account,
+        submissions=submissions,
     )
 
 

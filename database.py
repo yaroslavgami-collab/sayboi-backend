@@ -441,6 +441,46 @@ def list_students(course=None):
     return rows
 
 
+def get_teacher_overview_stats():
+    conn = get_connection()
+
+    lessons_count = conn.execute("SELECT COUNT(*) AS n FROM lessons WHERE is_published = 1").fetchone()["n"]
+    students_count = conn.execute("SELECT COUNT(*) AS n FROM accounts WHERE role = 'student'").fetchone()["n"]
+    pending_count = conn.execute("SELECT COUNT(*) AS n FROM submissions WHERE status = 'submitted'").fetchone()["n"]
+
+    conn.close()
+
+    return {
+        "lessons_count": lessons_count,
+        "students_count": students_count,
+        "pending_count": pending_count,
+    }
+
+
+def get_pending_submissions():
+    conn = get_connection()
+
+    rows = conn.execute("""
+        SELECT
+            s.*,
+            acc.full_name AS student_name,
+            acc.login AS student_login,
+            a.title AS assignment_title,
+            a.lesson_id AS lesson_id,
+            l.title AS lesson_title
+        FROM submissions s
+        JOIN accounts acc ON acc.id = s.student_id
+        JOIN assignments a ON a.id = s.assignment_id
+        JOIN lessons l ON l.id = a.lesson_id
+        WHERE s.status = 'submitted'
+        ORDER BY s.submitted_at ASC
+    """).fetchall()
+
+    conn.close()
+
+    return rows
+
+
 # ==========================================
 # LMS: УРОКИ
 # ==========================================

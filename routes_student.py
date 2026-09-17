@@ -35,6 +35,7 @@ def dashboard(account):
 
     lessons_with_status = get_student_lessons_with_status(account["id"], account["course"])
     progress = _progress_percent(lessons_with_status)
+    next_lesson = next((e for e in lessons_with_status if e["status"] == "unlocked"), None)
 
     return render_template(
         "student/dashboard.html",
@@ -42,6 +43,7 @@ def dashboard(account):
         lessons_with_status=lessons_with_status,
         progress=progress,
         celebrate=celebrate,
+        next_lesson=next_lesson,
     )
 
 

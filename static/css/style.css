@@ -33,25 +33,44 @@ body {
   position: relative;
 }
 
-/* Фірмовий watermark-прапор, як на сайті оплати */
+/* Фірмовий фон: прапор + м'яке світіння, як на сайті оплати, але виразніше */
+
+.glow-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% -8%, rgba(255, 255, 255, 0.09), transparent 42%),
+    radial-gradient(circle at 88% 8%, rgba(255, 255, 255, 0.05), transparent 38%),
+    radial-gradient(circle at 50% 115%, rgba(255, 255, 255, 0.06), transparent 45%);
+}
 
 .flag-bg {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 950px;
+  width: 1050px;
   max-width: none;
-  opacity: 0.045;
+  opacity: 0.075;
   pointer-events: none;
   user-select: none;
   z-index: 0;
+  animation: flag-drift 26s ease-in-out infinite;
+}
+
+@keyframes flag-drift {
+  0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  50% { transform: translate(-49%, -51%) scale(1.03) rotate(0.6deg); }
 }
 
 .overlay-bg {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background:
+    radial-gradient(ellipse at 50% 0%, transparent 0%, rgba(0, 0, 0, 0.35) 70%),
+    rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(3px);
   z-index: 0;
 }
@@ -448,3 +467,38 @@ th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: upp
 
 .quiz-option.correct { border-color: rgba(111, 219, 150, 0.5); background: var(--success-bg); }
 .quiz-option.incorrect { border-color: var(--danger-border); background: var(--danger-bg); }
+
+/* Статистичні картки (дашборд учителя, "продовжити навчання" тощо) */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--text);
+  transition: 0.2s;
+}
+
+a.stat-card:hover { border-color: #4a4a4a; transform: translateY(-2px); }
+
+.stat-value { font-size: 30px; font-weight: 800; }
+.stat-label { font-size: 13px; color: var(--muted); }
+
+.stat-card-alert .stat-value { color: var(--danger); }
+.stat-card-alert { border-color: var(--danger-border); }
+
+.continue-card {
+  background: linear-gradient(135deg, var(--card-alt), var(--card));
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .stat-grid { grid-template-columns: 1fr; }
+}

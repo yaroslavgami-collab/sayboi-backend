@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}На перевірці{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Відповіді на перевірці</h1>
+  <a class="btn secondary" href="{{ url_for('teacher.dashboard') }}">&larr; До уроків</a>
+</div>
+
+{% if not submissions %}
+<div class="card"><p class="muted">Все відповіді перевірено 🎉</p></div>
+{% endif %}
+
+{% for s in submissions %}
+<div class="card">
+  <h3>{{ s.student_name or s.student_login }} — {{ s.assignment_title }}</h3>
+  <p class="muted">Урок: {{ s.lesson_title }} · Надіслано: {{ s.submitted_at }}</p>
+  <p>{{ s.answer_text }}</p>
+
+  <form method="post" action="{{ url_for('teacher.grade', submission_id=s.id) }}" class="btn-row" style="align-items: end;">
+    <input type="hidden" name="redirect_to" value="{{ request.path }}">
+    <div>
+      <label for="score_{{ s.id }}">Оцінка</label>
+      <input type="number" id="score_{{ s.id }}" name="score" style="width: 80px;">
+    </div>
+    <div style="flex: 1;">
+      <label for="feedback_{{ s.id }}">Коментар</label>
+      <input type="text" id="feedback_{{ s.id }}" name="feedback">
+    </div>
+    <button class="btn" type="submit">Зберегти оцінку</button>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}

@@ -3,10 +3,24 @@
 {% block content %}
 <div class="card">
   <div class="btn-row" style="justify-content: space-between; align-items: center;">
-    <h1 style="margin:0;">Уроки курсів</h1>
+    <h1 style="margin:0;">Кабінет вчителя</h1>
     <a class="btn" href="{{ url_for('teacher.new_lesson') }}">+ Новий урок</a>
   </div>
-  <p class="muted">Учнів у системі: {{ students_count }} · <a href="{{ url_for('teacher.students') }}">переглянути список</a></p>
+</div>
+
+<div class="stat-grid">
+  <a class="card stat-card" href="{{ url_for('teacher.students') }}">
+    <span class="stat-value">{{ stats.students_count }}</span>
+    <span class="stat-label">Учнів</span>
+  </a>
+  <div class="card stat-card">
+    <span class="stat-value">{{ stats.lessons_count }}</span>
+    <span class="stat-label">Опублікованих уроків</span>
+  </div>
+  <a class="card stat-card {{ 'stat-card-alert' if stats.pending_count else '' }}" href="{{ url_for('teacher.pending_submissions') }}">
+    <span class="stat-value">{{ stats.pending_count }}</span>
+    <span class="stat-label">На перевірці</span>
+  </a>
 </div>
 
 {% for course in courses %}
