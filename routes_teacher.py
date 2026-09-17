@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 
 from auth import login_required
+from uploads import save_local_attachment, upload_video
 from database import (
     list_all_lessons,
     get_lesson,
@@ -48,6 +49,36 @@ def _parse_assignment_form(form):
 
     return "quiz", options, correct_index
 
+
+def _resolve_lesson_media(form, files):
+    """Обробляє поля відео/вкладення уроку: завантажений файл має пріоритет над посиланням."""
+
+    video_url = form.get("video_url", "").strip() or None
+    attachment_url = form.get("attachment_url", "").strip() or None
+
+    video_file = files.get("video_file")
+
+    if video_file and video_file.filename:
+        uploaded_url, error = upload_video(video_file)
+
+        if error:
+            return None, None, error
+
+        video_url = uploaded_url
+
+    attachment_file = files.get("attachment_file")
+
+    if attachment_file and attachment_file.filename:
+        uploaded_url, error = save_local_attachment(attachment_file)
+
+        if error:
+            return None, None, error
+
+        attachment_url = uploaded_url
+
+    return video_url, attachment_url, None
+
+
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
 COURSES = ["starter", "plus", "premium"]
@@ -81,13 +112,17 @@ def new_lesson(account):
         course = request.form.get("course")
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "")
-        video_url = request.form.get("video_url", "").strip() or None
-        attachment_url = request.form.get("attachment_url", "").strip() or None
         scheduled_at = request.form.get("scheduled_at", "").strip() or None
         order_index = int(request.form.get("order_index") or 0)
 
         if not title or course not in COURSES:
             flash("Заповніть назву та оберіть курс", "error")
+            return render_template("teacher/lesson_form.html", account=account, courses=COURSES, lesson=None)
+
+        video_url, attachment_url, media_error = _resolve_lesson_media(request.form, request.files)
+
+        if media_error:
+            flash(media_error, "error")
             return render_template("teacher/lesson_form.html", account=account, courses=COURSES, lesson=None)
 
         lesson_id = create_lesson(course, title, content, video_url, attachment_url, scheduled_at, order_index)
@@ -111,14 +146,18 @@ def edit_lesson(account, lesson_id):
         course = request.form.get("course")
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "")
-        video_url = request.form.get("video_url", "").strip() or None
-        attachment_url = request.form.get("attachment_url", "").strip() or None
         scheduled_at = request.form.get("scheduled_at", "").strip() or None
         order_index = int(request.form.get("order_index") or 0)
         is_published = request.form.get("is_published") == "on"
 
         if not title or course not in COURSES:
             flash("Заповніть назву та оберіть курс", "error")
+            return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
+
+        video_url, attachment_url, media_error = _resolve_lesson_media(request.form, request.files)
+
+        if media_error:
+            flash(media_error, "error")
             return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
 
         update_lesson(lesson_id, course, title, content, video_url, attachment_url, scheduled_at, order_index, is_published)

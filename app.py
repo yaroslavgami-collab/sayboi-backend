@@ -4,7 +4,7 @@ import base64
 import json
 import requests
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, flash, redirect, url_for
 from flask_cors import CORS
 
 from database import (
@@ -48,6 +48,8 @@ app = Flask(__name__)
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key-change-me")
 
+app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024  # 200 MB (відео йде в Cloudinary, файли — на диск)
+
 CORS(
     app,
     origins=["https://sayboi.netlify.app"]
@@ -56,6 +58,12 @@ CORS(
 app.register_blueprint(auth_bp)
 app.register_blueprint(teacher_bp)
 app.register_blueprint(student_bp)
+
+
+@app.errorhandler(413)
+def file_too_large(e):
+    flash("Файл завеликий (максимум 200 МБ)", "error")
+    return redirect(request.referrer or url_for("teacher.dashboard"))
 
 
 @app.context_processor

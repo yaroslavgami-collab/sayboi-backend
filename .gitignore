@@ -9,3 +9,4 @@ venv/
 database.db
 database.db-wal
 database.db-shm
+static/uploads/

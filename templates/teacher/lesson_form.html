@@ -32,7 +32,7 @@
 <div class="card">
   <h1>{{ 'Редагування уроку' if lesson else 'Новий урок' }}</h1>
 
-  <form method="post" action="{{ url_for('teacher.edit_lesson', lesson_id=lesson.id) if lesson else url_for('teacher.new_lesson') }}">
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('teacher.edit_lesson', lesson_id=lesson.id) if lesson else url_for('teacher.new_lesson') }}">
     <label for="course">Курс</label>
     <select id="course" name="course" required>
       {% for c in courses %}
@@ -46,11 +46,17 @@
     <label for="title">Назва уроку</label>
     <input type="text" id="title" name="title" value="{{ lesson.title if lesson else '' }}" required>
 
-    <label for="video_url">Посилання на відео (необов'язково)</label>
+    <label for="video_file">Відео уроку — завантажити файл (mp4 тощо)</label>
+    <input type="file" id="video_file" name="video_file" accept="video/*">
+    <label for="video_url">...або залишити посилання на YouTube/Vimeo</label>
     <input type="url" id="video_url" name="video_url" value="{{ lesson.video_url if lesson and lesson.video_url else '' }}">
+    {% if lesson and lesson.video_url %}<p class="muted">Поточне відео: <a href="{{ lesson.video_url }}" target="_blank" rel="noopener">відкрити</a></p>{% endif %}
 
-    <label for="attachment_url">Посилання на файл/картинку до уроку (необов'язково)</label>
+    <label for="attachment_file">Матеріали уроку — завантажити файл (PDF, картинка, DOC)</label>
+    <input type="file" id="attachment_file" name="attachment_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx">
+    <label for="attachment_url">...або залишити посилання</label>
     <input type="url" id="attachment_url" name="attachment_url" value="{{ lesson.attachment_url if lesson and lesson.attachment_url else '' }}" placeholder="https://drive.google.com/...">
+    {% if lesson and lesson.attachment_url %}<p class="muted">Поточний файл: <a href="{{ lesson.attachment_url }}" target="_blank" rel="noopener">відкрити</a></p>{% endif %}
 
     <label for="scheduled_at">Дата відкриття уроку (необов'язково, якщо пусто — доступний одразу)</label>
     <input type="datetime-local" id="scheduled_at" name="scheduled_at" value="{{ lesson.scheduled_at if lesson and lesson.scheduled_at else '' }}">

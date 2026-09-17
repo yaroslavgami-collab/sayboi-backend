@@ -12,11 +12,24 @@
   </h1>
 
   {% if lesson.video_url %}
-    <p><a class="btn secondary" href="{{ lesson.video_url }}" target="_blank" rel="noopener">▶ Відкрити відео уроку</a></p>
+    {% if lesson.video_url.endswith('.mp4') or lesson.video_url.endswith('.webm') or lesson.video_url.endswith('.mov') or 'cloudinary.com' in lesson.video_url %}
+      <video controls style="width: 100%; border-radius: 16px; margin: 14px 0; background: #000;">
+        <source src="{{ lesson.video_url }}">
+      </video>
+    {% else %}
+      <p><a class="btn secondary" href="{{ lesson.video_url }}" target="_blank" rel="noopener">▶ Відкрити відео уроку</a></p>
+    {% endif %}
   {% endif %}
 
   {% if lesson.attachment_url %}
-    <p><a class="btn secondary" href="{{ lesson.attachment_url }}" target="_blank" rel="noopener">📎 Матеріали до уроку</a></p>
+    {% set lower_url = lesson.attachment_url.lower() %}
+    {% if lower_url.endswith('.png') or lower_url.endswith('.jpg') or lower_url.endswith('.jpeg') or lower_url.endswith('.gif') or lower_url.endswith('.webp') %}
+      <a href="{{ lesson.attachment_url }}" target="_blank" rel="noopener">
+        <img src="{{ lesson.attachment_url }}" alt="Матеріали до уроку" style="max-width: 100%; border-radius: 16px; margin: 14px 0; display: block;">
+      </a>
+    {% else %}
+      <p><a class="btn secondary" href="{{ lesson.attachment_url }}" target="_blank" rel="noopener">📎 Матеріали до уроку</a></p>
+    {% endif %}
   {% endif %}
 
   {% if lesson.content %}
