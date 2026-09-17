@@ -15,6 +15,10 @@
     <p><a class="btn secondary" href="{{ lesson.video_url }}" target="_blank" rel="noopener">▶ Відкрити відео уроку</a></p>
   {% endif %}
 
+  {% if lesson.attachment_url %}
+    <p><a class="btn secondary" href="{{ lesson.attachment_url }}" target="_blank" rel="noopener">📎 Матеріали до уроку</a></p>
+  {% endif %}
+
   {% if lesson.content %}
     <div class="lesson-content">{{ lesson.content }}</div>
   {% endif %}
@@ -36,28 +40,83 @@
     <strong>{{ a.title }}</strong>
     {% if a.description %}<p class="lesson-content">{{ a.description }}</p>{% endif %}
 
-    {% if submission %}
-      <p><strong>Ваша відповідь:</strong> {{ submission.answer_text }}</p>
-      {% if submission.status == 'reviewed' %}
-        <p class="muted">Оцінка: {{ submission.score if submission.score is not none else '—' }}{% if submission.feedback %} · {{ submission.feedback }}{% endif %}</p>
+    {% if a.type == 'quiz' %}
+      {% set options = assignment_options.get(a.id, []) %}
+
+      {% if submission %}
+        <p class="muted">
+          Ваша відповідь: <strong>{{ submission.answer_text }}</strong> —
+          {% if submission.score == 100 %}✅ правильно{% else %}❌ неправильно{% endif %}
+        </p>
+        {% if submission.score != 100 %}
+        <details>
+          <summary class="muted">Спробувати ще раз</summary>
+          <form method="post" action="{{ url_for('student.submit', assignment_id=a.id) }}" style="margin-top: 10px;">
+            {% for opt in options %}
+            <label class="quiz-option">
+              <input type="radio" name="selected_option" value="{{ loop.index0 }}" required>
+              <span>{{ opt }}</span>
+            </label>
+            {% endfor %}
+            <button class="btn" type="submit" style="margin-top: 10px;">Відповісти</button>
+          </form>
+        </details>
+        {% endif %}
       {% else %}
-        <p class="muted">Надіслано на перевірку</p>
-      {% endif %}
-      <details>
-        <summary class="muted">Надіслати іншу відповідь</summary>
         <form method="post" action="{{ url_for('student.submit', assignment_id=a.id) }}">
-          <textarea name="answer_text" required>{{ submission.answer_text }}</textarea>
-          <button class="btn" type="submit">Надіслати</button>
+          {% for opt in options %}
+          <label class="quiz-option">
+            <input type="radio" name="selected_option" value="{{ loop.index0 }}" required>
+            <span>{{ opt }}</span>
+          </label>
+          {% endfor %}
+          <button class="btn" type="submit" style="margin-top: 10px;">Відповісти</button>
         </form>
-      </details>
+      {% endif %}
+
     {% else %}
-      <form method="post" action="{{ url_for('student.submit', assignment_id=a.id) }}">
-        <textarea name="answer_text" placeholder="Ваша відповідь..." required></textarea>
-        <button class="btn" type="submit">Надіслати відповідь</button>
-      </form>
+
+      {% if submission %}
+        <p><strong>Ваша відповідь:</strong> {{ submission.answer_text }}</p>
+        {% if submission.status == 'reviewed' %}
+          <p class="muted">Оцінка: {{ submission.score if submission.score is not none else '—' }}{% if submission.feedback %} · {{ submission.feedback }}{% endif %}</p>
+        {% else %}
+          <p class="muted">Надіслано на перевірку</p>
+        {% endif %}
+        <details>
+          <summary class="muted">Надіслати іншу відповідь</summary>
+          <form method="post" action="{{ url_for('student.submit', assignment_id=a.id) }}">
+            <textarea name="answer_text" required>{{ submission.answer_text }}</textarea>
+            <button class="btn" type="submit">Надіслати</button>
+          </form>
+        </details>
+      {% else %}
+        <form method="post" action="{{ url_for('student.submit', assignment_id=a.id) }}">
+          <textarea name="answer_text" placeholder="Ваша відповідь..." required></textarea>
+          <button class="btn" type="submit">Надіслати відповідь</button>
+        </form>
+      {% endif %}
+
     {% endif %}
   </div>
   {% endfor %}
 </div>
 {% endif %}
+
+<div class="toast" id="toast"><span class="toast-icon">✓</span><span>Правильна відповідь!</span></div>
+
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  if (!params.get("celebrate")) return;
+
+  var toast = document.getElementById("toast");
+  toast.classList.add("show");
+  setTimeout(function () { toast.classList.remove("show"); }, 2800);
+
+  var url = new URL(window.location.href);
+  url.searchParams.delete("celebrate");
+  window.history.replaceState({}, "", url);
+})();
+</script>
 {% endblock %}

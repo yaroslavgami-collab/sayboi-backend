@@ -1,6 +1,7 @@
 import secrets
 import string
 import sqlite3
+import json
 from datetime import datetime, timezone
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,6 +22,13 @@ def get_connection():
     conn.execute("PRAGMA foreign_keys = ON")
 
     return conn
+
+
+def _add_column_if_missing(conn, table, column, definition):
+    existing = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+
+    if column not in existing:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def init_database():
@@ -78,6 +86,7 @@ def init_database():
             title TEXT NOT NULL,
             content TEXT,
             video_url TEXT,
+            attachment_url TEXT,
             scheduled_at TEXT,
             is_published INTEGER DEFAULT 1,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -92,9 +101,17 @@ def init_database():
             order_index INTEGER NOT NULL DEFAULT 0,
             title TEXT NOT NULL,
             description TEXT,
+            type TEXT NOT NULL DEFAULT 'text',
+            options TEXT,
+            correct_option INTEGER,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    _add_column_if_missing(conn, "lessons", "attachment_url", "TEXT")
+    _add_column_if_missing(conn, "assignments", "type", "TEXT NOT NULL DEFAULT 'text'")
+    _add_column_if_missing(conn, "assignments", "options", "TEXT")
+    _add_column_if_missing(conn, "assignments", "correct_option", "INTEGER")
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS lesson_progress (
@@ -428,16 +445,16 @@ def list_students(course=None):
 # LMS: УРОКИ
 # ==========================================
 
-def create_lesson(course, title, content, video_url, scheduled_at, order_index):
+def create_lesson(course, title, content, video_url, attachment_url, scheduled_at, order_index):
     conn = get_connection()
 
     now = _now()
 
     cursor = conn.execute("""
         INSERT INTO lessons
-        (course, order_index, title, content, video_url, scheduled_at, is_published, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
-    """, (course, order_index, title, content, video_url, scheduled_at, now, now))
+        (course, order_index, title, content, video_url, attachment_url, scheduled_at, is_published, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+    """, (course, order_index, title, content, video_url, attachment_url, scheduled_at, now, now))
 
     conn.commit()
 
@@ -448,16 +465,16 @@ def create_lesson(course, title, content, video_url, scheduled_at, order_index):
     return lesson_id
 
 
-def update_lesson(lesson_id, course, title, content, video_url, scheduled_at, order_index, is_published):
+def update_lesson(lesson_id, course, title, content, video_url, attachment_url, scheduled_at, order_index, is_published):
     conn = get_connection()
 
     conn.execute("""
         UPDATE lessons
         SET course = ?, order_index = ?, title = ?, content = ?,
-            video_url = ?, scheduled_at = ?, is_published = ?, updated_at = ?
+            video_url = ?, attachment_url = ?, scheduled_at = ?, is_published = ?, updated_at = ?
         WHERE id = ?
     """, (
-        course, order_index, title, content, video_url,
+        course, order_index, title, content, video_url, attachment_url,
         scheduled_at, 1 if is_published else 0, _now(), lesson_id
     ))
 
@@ -525,14 +542,16 @@ def get_lessons_by_course(course, published_only=False):
 # LMS: ЗАДАНИЯ
 # ==========================================
 
-def create_assignment(lesson_id, title, description, order_index):
+def create_assignment(lesson_id, title, description, order_index, type="text", options=None, correct_option=None):
     conn = get_connection()
+
+    options_json = json.dumps(options, ensure_ascii=False) if options else None
 
     cursor = conn.execute("""
         INSERT INTO assignments
-        (lesson_id, order_index, title, description, created_at)
-        VALUES (?, ?, ?, ?, ?)
-    """, (lesson_id, order_index, title, description, _now()))
+        (lesson_id, order_index, title, description, type, options, correct_option, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (lesson_id, order_index, title, description, type, options_json, correct_option, _now()))
 
     conn.commit()
 
@@ -543,17 +562,26 @@ def create_assignment(lesson_id, title, description, order_index):
     return assignment_id
 
 
-def update_assignment(assignment_id, title, description, order_index):
+def update_assignment(assignment_id, title, description, order_index, type="text", options=None, correct_option=None):
     conn = get_connection()
+
+    options_json = json.dumps(options, ensure_ascii=False) if options else None
 
     conn.execute("""
         UPDATE assignments
-        SET title = ?, description = ?, order_index = ?
+        SET title = ?, description = ?, order_index = ?, type = ?, options = ?, correct_option = ?
         WHERE id = ?
-    """, (title, description, order_index, assignment_id))
+    """, (title, description, order_index, type, options_json, correct_option, assignment_id))
 
     conn.commit()
     conn.close()
+
+
+def get_assignment_options(assignment):
+    if not assignment["options"]:
+        return []
+
+    return json.loads(assignment["options"])
 
 
 def delete_assignment(assignment_id):
@@ -642,6 +670,30 @@ def submit_assignment(student_id, assignment_id, answer_text):
     conn.close()
 
 
+def submit_quiz_answer(student_id, assignment_id, answer_text, is_correct):
+    conn = get_connection()
+
+    now = _now()
+    score = 100 if is_correct else 0
+    feedback = "Правильна відповідь!" if is_correct else "Неправильно."
+
+    conn.execute("""
+        INSERT INTO submissions
+        (student_id, assignment_id, answer_text, status, score, feedback, submitted_at, reviewed_at)
+        VALUES (?, ?, ?, 'reviewed', ?, ?, ?, ?)
+        ON CONFLICT(student_id, assignment_id) DO UPDATE SET
+            answer_text = excluded.answer_text,
+            status = 'reviewed',
+            score = excluded.score,
+            feedback = excluded.feedback,
+            submitted_at = excluded.submitted_at,
+            reviewed_at = excluded.reviewed_at
+    """, (student_id, assignment_id, answer_text, score, feedback, now, now))
+
+    conn.commit()
+    conn.close()
+
+
 def get_submissions_for_student(student_id, lesson_id):
     conn = get_connection()
 
@@ -654,6 +706,32 @@ def get_submissions_for_student(student_id, lesson_id):
     conn.close()
 
     return {row["assignment_id"]: row for row in rows}
+
+
+def get_student_stats(student_id):
+    conn = get_connection()
+
+    row = conn.execute("""
+        SELECT
+            COUNT(*) AS total_submissions,
+            SUM(CASE WHEN score = 100 THEN 1 ELSE 0 END) AS correct_quiz_answers,
+            SUM(CASE WHEN status = 'reviewed' THEN 1 ELSE 0 END) AS reviewed_count
+        FROM submissions
+        WHERE student_id = ?
+    """, (student_id,)).fetchone()
+
+    completed = conn.execute("""
+        SELECT COUNT(*) AS n FROM lesson_progress WHERE student_id = ?
+    """, (student_id,)).fetchone()
+
+    conn.close()
+
+    return {
+        "total_submissions": row["total_submissions"] or 0,
+        "correct_quiz_answers": row["correct_quiz_answers"] or 0,
+        "reviewed_count": row["reviewed_count"] or 0,
+        "lessons_completed": completed["n"] or 0,
+    }
 
 
 def get_submissions_for_assignment(assignment_id):

@@ -28,7 +28,10 @@ PLATFORM_URL = os.getenv("PLATFORM_URL", "https://sayboi-backend.onrender.com")
 menu = ReplyKeyboardMarkup(
     [
         [KeyboardButton("🔑 Особистий кабінет", web_app=WebAppInfo(f"{PLATFORM_URL}/login"))],
-        [KeyboardButton("👤 Профіль"), KeyboardButton("📈 Прогрес")],
+        [
+            KeyboardButton("👤 Профіль", web_app=WebAppInfo(f"{PLATFORM_URL}/student/profile")),
+            KeyboardButton("📈 Прогрес", web_app=WebAppInfo(f"{PLATFORM_URL}/student"))
+        ],
         [KeyboardButton("💬 Підтримка")]
     ],
     resize_keyboard=True
@@ -66,24 +69,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
 
-    if text == "👤 Профіль":
-
-        await update.message.reply_text(
-            "👤 Профіль\n\n"
-            "Premium: ❌\n"
-            "Прогрес: 0%\n"
-            "Уроків завершено: 0"
-        )
-
-    elif text == "📈 Прогрес":
-
-        await update.message.reply_text(
-            "📈 Прогрес\n\n"
-            "□□□□□□□□□□\n"
-            "0%"
-        )
-
-    elif text == "💬 Підтримка":
+    if text == "💬 Підтримка":
 
         await update.message.reply_text(
             "Підтримка:\n\n"

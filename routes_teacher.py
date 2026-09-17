@@ -12,12 +12,41 @@ from database import (
     update_assignment,
     delete_assignment,
     get_assignment,
+    get_assignment_options,
     list_students,
     get_student_lessons_with_status,
     get_submissions_for_student,
     get_submissions_for_assignment,
     grade_submission,
 )
+
+MAX_QUIZ_OPTIONS = 4
+
+
+def _parse_assignment_form(form):
+    """Читає форму завдання і повертає (type, options, correct_option) або None при помилці валідації."""
+
+    type_ = form.get("type", "text")
+
+    if type_ != "quiz":
+        return "text", None, None
+
+    raw_options = [form.get(f"option_{i}", "").strip() for i in range(MAX_QUIZ_OPTIONS)]
+    options = [o for o in raw_options if o]
+
+    correct_raw = form.get("correct_option")
+    correct_index = None
+
+    if correct_raw not in (None, "") and correct_raw.isdigit():
+        raw_idx = int(correct_raw)
+
+        if 0 <= raw_idx < len(raw_options) and raw_options[raw_idx]:
+            correct_index = options.index(raw_options[raw_idx])
+
+    if len(options) < 2 or correct_index is None:
+        return None
+
+    return "quiz", options, correct_index
 
 teacher_bp = Blueprint("teacher", __name__, url_prefix="/teacher")
 
@@ -53,6 +82,7 @@ def new_lesson(account):
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "")
         video_url = request.form.get("video_url", "").strip() or None
+        attachment_url = request.form.get("attachment_url", "").strip() or None
         scheduled_at = request.form.get("scheduled_at", "").strip() or None
         order_index = int(request.form.get("order_index") or 0)
 
@@ -60,7 +90,7 @@ def new_lesson(account):
             flash("Заповніть назву та оберіть курс", "error")
             return render_template("teacher/lesson_form.html", account=account, courses=COURSES, lesson=None)
 
-        lesson_id = create_lesson(course, title, content, video_url, scheduled_at, order_index)
+        lesson_id = create_lesson(course, title, content, video_url, attachment_url, scheduled_at, order_index)
 
         flash("Урок створено", "success")
         return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
@@ -82,6 +112,7 @@ def edit_lesson(account, lesson_id):
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "")
         video_url = request.form.get("video_url", "").strip() or None
+        attachment_url = request.form.get("attachment_url", "").strip() or None
         scheduled_at = request.form.get("scheduled_at", "").strip() or None
         order_index = int(request.form.get("order_index") or 0)
         is_published = request.form.get("is_published") == "on"
@@ -90,12 +121,16 @@ def edit_lesson(account, lesson_id):
             flash("Заповніть назву та оберіть курс", "error")
             return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
 
-        update_lesson(lesson_id, course, title, content, video_url, scheduled_at, order_index, is_published)
+        update_lesson(lesson_id, course, title, content, video_url, attachment_url, scheduled_at, order_index, is_published)
 
         flash("Зміни збережено", "success")
         return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
 
     assignments = get_assignments_by_lesson(lesson_id)
+    assignment_options = {
+        a["id"]: (get_assignment_options(a) + [""] * MAX_QUIZ_OPTIONS)[:MAX_QUIZ_OPTIONS]
+        for a in assignments
+    }
 
     return render_template(
         "teacher/lesson_form.html",
@@ -103,6 +138,7 @@ def edit_lesson(account, lesson_id):
         courses=COURSES,
         lesson=lesson,
         assignments=assignments,
+        assignment_options=assignment_options,
     )
 
 
@@ -121,11 +157,20 @@ def new_assignment(account, lesson_id):
     description = request.form.get("description", "")
     order_index = int(request.form.get("order_index") or 0)
 
-    if title:
-        create_assignment(lesson_id, title, description, order_index)
-        flash("Завдання додано", "success")
-    else:
+    if not title:
         flash("Вкажіть назву завдання", "error")
+        return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
+
+    parsed = _parse_assignment_form(request.form)
+
+    if parsed is None:
+        flash("Для тесту потрібно щонайменше 2 варіанти відповіді та позначена правильна", "error")
+        return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
+
+    type_, options, correct_option = parsed
+
+    create_assignment(lesson_id, title, description, order_index, type_, options, correct_option)
+    flash("Завдання додано", "success")
 
     return redirect(url_for("teacher.edit_lesson", lesson_id=lesson_id))
 
@@ -143,9 +188,20 @@ def edit_assignment(account, assignment_id):
     description = request.form.get("description", "")
     order_index = int(request.form.get("order_index") or 0)
 
-    if title:
-        update_assignment(assignment_id, title, description, order_index)
-        flash("Завдання оновлено", "success")
+    if not title:
+        flash("Вкажіть назву завдання", "error")
+        return redirect(url_for("teacher.edit_lesson", lesson_id=assignment["lesson_id"]))
+
+    parsed = _parse_assignment_form(request.form)
+
+    if parsed is None:
+        flash("Для тесту потрібно щонайменше 2 варіанти відповіді та позначена правильна", "error")
+        return redirect(url_for("teacher.edit_lesson", lesson_id=assignment["lesson_id"]))
+
+    type_, options, correct_option = parsed
+
+    update_assignment(assignment_id, title, description, order_index, type_, options, correct_option)
+    flash("Завдання оновлено", "success")
 
     return redirect(url_for("teacher.edit_lesson", lesson_id=assignment["lesson_id"]))
 

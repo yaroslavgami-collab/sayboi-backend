@@ -1,5 +1,33 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Редагування уроку' if lesson else 'Новий урок' }}{% endblock %}
+
+{% macro assignment_fields(prefix, a, options) %}
+  <label for="{{ prefix }}_title">Назва завдання</label>
+  <input type="text" id="{{ prefix }}_title" name="title" value="{{ a.title if a else '' }}" required>
+
+  <label for="{{ prefix }}_order">Порядок</label>
+  <input type="number" id="{{ prefix }}_order" name="order_index" value="{{ a.order_index if a else 0 }}">
+
+  <label for="{{ prefix }}_desc">Опис / умова завдання</label>
+  <textarea id="{{ prefix }}_desc" name="description">{{ a.description if a and a.description else '' }}</textarea>
+
+  <label for="{{ prefix }}_type">Тип завдання</label>
+  <select id="{{ prefix }}_type" name="type" onchange="toggleQuizFields(this)">
+    <option value="text" {% if not a or a.type == 'text' %}selected{% endif %}>Вільна відповідь</option>
+    <option value="quiz" {% if a and a.type == 'quiz' %}selected{% endif %}>Тест (один правильний варіант)</option>
+  </select>
+
+  <div class="quiz-fields" style="display: {{ 'flex' if a and a.type == 'quiz' else 'none' }}; flex-direction: column; gap: 8px;">
+    <label class="muted">Варіанти відповіді (заповніть щонайменше 2, позначте правильний)</label>
+    {% for i in range(4) %}
+    <div class="btn-row" style="align-items: center;">
+      <input type="radio" name="correct_option" value="{{ i }}" {% if a and a.correct_option == i %}checked{% endif %} style="width: auto;">
+      <input type="text" name="option_{{ i }}" placeholder="Варіант {{ i + 1 }}" value="{{ options[i] if options else '' }}" style="flex: 1;">
+    </div>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
 {% block content %}
 <div class="card">
   <h1>{{ 'Редагування уроку' if lesson else 'Новий урок' }}</h1>
@@ -20,6 +48,9 @@
 
     <label for="video_url">Посилання на відео (необов'язково)</label>
     <input type="url" id="video_url" name="video_url" value="{{ lesson.video_url if lesson and lesson.video_url else '' }}">
+
+    <label for="attachment_url">Посилання на файл/картинку до уроку (необов'язково)</label>
+    <input type="url" id="attachment_url" name="attachment_url" value="{{ lesson.attachment_url if lesson and lesson.attachment_url else '' }}" placeholder="https://drive.google.com/...">
 
     <label for="scheduled_at">Дата відкриття уроку (необов'язково, якщо пусто — доступний одразу)</label>
     <input type="datetime-local" id="scheduled_at" name="scheduled_at" value="{{ lesson.scheduled_at if lesson and lesson.scheduled_at else '' }}">
@@ -47,17 +78,28 @@
 
   {% if assignments %}
     {% for a in assignments %}
-    <div class="lesson-row">
-      <div>
-        <strong>{{ a.order_index }}. {{ a.title }}</strong>
-        {% if a.description %}<div class="muted">{{ a.description }}</div>{% endif %}
+    <div class="lesson-row" style="flex-direction: column; align-items: stretch;">
+      <div class="btn-row" style="justify-content: space-between;">
+        <div>
+          <strong>{{ a.order_index }}. {{ a.title }}</strong>
+          <span class="badge {{ 'unlocked' if a.type == 'quiz' else 'draft' }}">{{ 'тест' if a.type == 'quiz' else 'вільна відповідь' }}</span>
+          {% if a.description %}<div class="muted">{{ a.description }}</div>{% endif %}
+        </div>
+        <div class="btn-row">
+          <a class="btn secondary" href="{{ url_for('teacher.assignment_submissions', assignment_id=a.id) }}">Відповіді учнів</a>
+          <form method="post" action="{{ url_for('teacher.remove_assignment', assignment_id=a.id) }}" onsubmit="return confirm('Видалити завдання?');">
+            <button class="btn danger" type="submit">Видалити</button>
+          </form>
+        </div>
       </div>
-      <div class="btn-row">
-        <a class="btn secondary" href="{{ url_for('teacher.assignment_submissions', assignment_id=a.id) }}">Відповіді учнів</a>
-        <form method="post" action="{{ url_for('teacher.remove_assignment', assignment_id=a.id) }}" onsubmit="return confirm('Видалити завдання?');">
-          <button class="btn danger" type="submit">Видалити</button>
+
+      <details>
+        <summary class="muted">Редагувати завдання</summary>
+        <form method="post" action="{{ url_for('teacher.edit_assignment', assignment_id=a.id) }}" style="margin-top: 10px;">
+          {{ assignment_fields("a" ~ a.id, a, assignment_options.get(a.id)) }}
+          <button class="btn" type="submit">Зберегти завдання</button>
         </form>
-      </div>
+      </details>
     </div>
     {% endfor %}
   {% else %}
@@ -66,17 +108,16 @@
 
   <h3>Додати завдання</h3>
   <form method="post" action="{{ url_for('teacher.new_assignment', lesson_id=lesson.id) }}">
-    <label for="a_title">Назва завдання</label>
-    <input type="text" id="a_title" name="title" required>
-
-    <label for="a_order">Порядок</label>
-    <input type="number" id="a_order" name="order_index" value="0">
-
-    <label for="a_desc">Опис / умова завдання</label>
-    <textarea id="a_desc" name="description"></textarea>
-
+    {{ assignment_fields("new", None, None) }}
     <button class="btn" type="submit">Додати завдання</button>
   </form>
 </div>
 {% endif %}
+
+<script>
+function toggleQuizFields(select) {
+  var container = select.closest("form").querySelector(".quiz-fields");
+  container.style.display = select.value === "quiz" ? "flex" : "none";
+}
+</script>
 {% endblock %}

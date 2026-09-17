@@ -5,16 +5,23 @@
   <h1>Вітаємо, {{ account.full_name or account.login }}!</h1>
   <p class="muted">Курс: {{ (account.course or '—')|capitalize }}</p>
 
-  <div class="progress-bar"><div class="progress-bar-fill" style="width: {{ progress }}%;"></div></div>
+  <div class="progress-bar" id="progressBar"><div class="progress-bar-fill" style="width: {{ progress }}%;"></div></div>
   <p class="muted">Прогрес: {{ progress }}%</p>
 </div>
 
 {% if not lessons_with_status %}
 <div class="card"><p class="muted">Уроки ще не додано. Загляньте пізніше.</p></div>
-{% endif %}
+{% else %}
+
+<div class="filter-tabs">
+  <button class="filter-tab active" data-filter="all">Усі</button>
+  <button class="filter-tab" data-filter="unlocked">Доступні</button>
+  <button class="filter-tab" data-filter="completed">Завершені</button>
+  <button class="filter-tab" data-filter="locked">Заблоковані</button>
+</div>
 
 {% for entry in lessons_with_status %}
-<div class="lesson-row card" style="{% if entry.status == 'locked' %}opacity: 0.6;{% endif %}">
+<div class="lesson-row card lesson-item" data-status="{{ entry.status }}" style="{% if entry.status == 'locked' %}opacity: 0.6;{% endif %}">
   <div>
     <strong>{{ entry.lesson.title }}</strong>
     {% if entry.lesson.scheduled_at and entry.status == 'locked' %}
@@ -33,4 +40,47 @@
   </div>
 </div>
 {% endfor %}
+
+<p class="muted" id="emptyFilterMsg" style="display: none;">Немає уроків у цій категорії.</p>
+
+{% endif %}
+
+<div class="toast" id="toast"><span class="toast-icon">✓</span><span id="toastText">Урок завершено!</span></div>
+
+<script>
+document.querySelectorAll(".filter-tab").forEach(function (tab) {
+  tab.addEventListener("click", function () {
+    document.querySelectorAll(".filter-tab").forEach(function (t) { t.classList.remove("active"); });
+    tab.classList.add("active");
+
+    var filter = tab.dataset.filter;
+    var visibleCount = 0;
+
+    document.querySelectorAll(".lesson-item").forEach(function (item) {
+      var show = filter === "all" || item.dataset.status === filter;
+      item.style.display = show ? "" : "none";
+      if (show) visibleCount++;
+    });
+
+    var emptyMsg = document.getElementById("emptyFilterMsg");
+    if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? "block" : "none";
+  });
+});
+
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  if (!params.get("celebrate")) return;
+
+  var toast = document.getElementById("toast");
+  toast.classList.add("show");
+  setTimeout(function () { toast.classList.remove("show"); }, 2800);
+
+  var bar = document.getElementById("progressBar");
+  if (bar) bar.classList.add("pulse-once");
+
+  var url = new URL(window.location.href);
+  url.searchParams.delete("celebrate");
+  window.history.replaceState({}, "", url);
+})();
+</script>
 {% endblock %}

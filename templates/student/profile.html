@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Профіль{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>👤 {{ account.full_name or account.login }}</h1>
+  <p class="muted">Логін: {{ account.login }}</p>
+  <p class="muted">Курс: {{ (account.course or '—')|capitalize }}</p>
+  <p class="muted">У платформі з: {{ account.created_at[:10] if account.created_at else '—' }}</p>
+
+  <div class="btn-row" style="margin-top: 14px;">
+    <a class="btn secondary" href="{{ url_for('student.dashboard') }}">📈 До прогресу</a>
+    <a class="btn secondary" href="{{ url_for('auth.change_password') }}">Змінити пароль</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📊 Статистика</h2>
+
+  <div class="progress-bar"><div class="progress-bar-fill" style="width: {{ progress }}%;"></div></div>
+  <p class="muted">Прогрес курсу: {{ progress }}%</p>
+
+  <div class="lesson-row">
+    <span class="muted">Уроків завершено</span>
+    <strong>{{ stats.lessons_completed }}</strong>
+  </div>
+  <div class="lesson-row">
+    <span class="muted">Відповідей надіслано</span>
+    <strong>{{ stats.total_submissions }}</strong>
+  </div>
+  <div class="lesson-row">
+    <span class="muted">Правильних відповідей тесту</span>
+    <strong>{{ stats.correct_quiz_answers }}</strong>
+  </div>
+</div>
+{% endblock %}

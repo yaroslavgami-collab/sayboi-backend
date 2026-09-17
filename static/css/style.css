@@ -350,3 +350,101 @@ th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: upp
   .container { padding: 20px 16px 48px; }
   .lesson-row { flex-direction: column; align-items: flex-start; }
 }
+
+/* Тост-сповіщення при завершенні уроку / правильній відповіді */
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 0;
+  transform: translate(-50%, -16px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast .toast-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--success-bg);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex: none;
+}
+
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.pulse-once { animation: pulse-once 0.5s ease; }
+
+/* Фільтр-таби списку уроків */
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card-alt);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filter-tab:hover { color: var(--text); }
+
+.filter-tab.active {
+  background: var(--text);
+  color: #0a0a0a;
+  border-color: var(--text);
+}
+
+/* Варіанти відповіді тесту */
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.quiz-option:hover { border-color: #4a4a4a; }
+
+.quiz-option input { width: auto; }
+
+.quiz-option.correct { border-color: rgba(111, 219, 150, 0.5); background: var(--success-bg); }
+.quiz-option.incorrect { border-color: var(--danger-border); background: var(--danger-bg); }
