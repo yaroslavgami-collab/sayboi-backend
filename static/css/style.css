@@ -502,3 +502,55 @@ a.stat-card:hover { border-color: #4a4a4a; transform: translateY(-2px); }
 @media (max-width: 640px) {
   .stat-grid { grid-template-columns: 1fr; }
 }
+
+/* Декоративні предмети по кутах (книга, навушники, олівець, ноутбук) */
+
+.corner-decor {
+  position: fixed;
+  z-index: 0;
+  color: #ffffff;
+  opacity: 0.16;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+}
+
+.corner-tl {
+  top: -18px;
+  left: -22px;
+  width: 240px;
+  transform: rotate(-9deg);
+}
+
+.corner-tr {
+  top: -20px;
+  right: -18px;
+  width: 190px;
+  transform: rotate(12deg);
+}
+
+.corner-bl {
+  bottom: -24px;
+  left: -16px;
+  width: 190px;
+  transform: rotate(-16deg);
+}
+
+.corner-br {
+  bottom: -22px;
+  right: -26px;
+  width: 260px;
+  transform: rotate(7deg);
+}
+
+@media (max-width: 900px) {
+  .corner-decor { opacity: 0.1; }
+  .corner-tl { width: 170px; }
+  .corner-tr { width: 130px; }
+  .corner-bl { width: 130px; }
+  .corner-br { width: 180px; }
+}
+
+@media (max-width: 560px) {
+  .corner-tr, .corner-bl { display: none; }
+}

@@ -17,6 +17,32 @@
   <div class="glow-bg"></div>
   <div class="overlay-bg"></div>
 
+  <svg class="corner-decor corner-tl" viewBox="0 0 100 70" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 14 C38 6 16 5 6 10 L6 56 C16 51 38 52 50 60 C62 52 84 51 94 56 L94 10 C84 5 62 6 50 14 Z"/>
+    <path d="M50 14 L50 60"/>
+    <path d="M14 20 C24 16 36 17 44 21" opacity="0.6"/>
+    <path d="M14 30 C24 26 36 27 44 31" opacity="0.6"/>
+    <path d="M56 21 C64 17 76 16 86 20" opacity="0.6"/>
+    <path d="M56 31 C64 27 76 26 86 30" opacity="0.6"/>
+  </svg>
+
+  <svg class="corner-decor corner-tr" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 55 V46 A34 34 0 0 1 84 46 V55"/>
+    <rect x="8" y="52" width="20" height="32" rx="9"/>
+    <rect x="72" y="52" width="20" height="32" rx="9"/>
+  </svg>
+
+  <svg class="corner-decor corner-bl" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 82 L12 94 L26 89 L78 37 A9 9 0 0 0 67 26 L18 82 Z"/>
+    <path d="M64 30 L74 40" stroke-width="3.5"/>
+  </svg>
+
+  <svg class="corner-decor corner-br" viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="22" y="10" width="76" height="50" rx="4"/>
+    <path d="M6 70 L114 70 L104 60 L16 60 Z"/>
+    <line x1="46" y1="70" x2="74" y2="70"/>
+  </svg>
+
   {% if account %}
   <div class="topbar">
     <a class="brand" href="{{ url_for('teacher.dashboard' if account.role == 'teacher' else 'student.dashboard') }}">
