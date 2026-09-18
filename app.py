@@ -405,12 +405,13 @@ def liqpay_callback():
     # ======================================
 
     bot_user = get_user(telegram_id)
-    full_name = bot_user["username"] if bot_user else ""
+    username = bot_user["username"] if bot_user else ""
 
     account, plain_password = get_or_create_student_account(
         telegram_id,
         purchase["course"],
-        full_name
+        full_name=username,
+        username=username,
     )
 
     if plain_password:

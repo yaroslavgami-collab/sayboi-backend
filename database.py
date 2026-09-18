@@ -2,6 +2,7 @@ import secrets
 import string
 import sqlite3
 import json
+import re
 from datetime import datetime, timezone
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -273,6 +274,34 @@ def _generate_unique_login(conn, prefix):
             return candidate
 
 
+def _generate_login_from_username(conn, username, fallback_prefix="std"):
+    """
+    Формує логін з telegram-нікнейму (без @, тільки [a-z0-9_], до 20 символів).
+    Якщо нікнейм відсутній/порожній після очищення — падає назад на випадковий логін.
+    При колізії додає числовий суфікс (ivan, ivan2, ivan3, ...).
+    """
+
+    base = re.sub(r"[^a-z0-9_]", "", (username or "").lower())[:20]
+
+    if not base:
+        return _generate_unique_login(conn, fallback_prefix)
+
+    candidate = base
+    suffix = 1
+
+    while True:
+        exists = conn.execute(
+            "SELECT 1 FROM accounts WHERE login = ?",
+            (candidate,)
+        ).fetchone()
+
+        if not exists:
+            return candidate
+
+        suffix += 1
+        candidate = f"{base}{suffix}"
+
+
 def get_account(account_id):
     conn = get_connection()
 
@@ -336,7 +365,7 @@ def verify_login(login, password):
     return account
 
 
-def get_or_create_student_account(telegram_id, course, full_name=""):
+def get_or_create_student_account(telegram_id, course, full_name="", username=""):
     """
     Идемпотентно создаёт аккаунт ученика после оплаты.
     Возвращает (account_row, plain_password_or_None).
@@ -366,7 +395,7 @@ def get_or_create_student_account(telegram_id, course, full_name=""):
 
         return account, None
 
-    login = _generate_unique_login(conn, "std")
+    login = _generate_login_from_username(conn, username)
     plain_password = _generate_password()
     password_hash = generate_password_hash(plain_password)
 
