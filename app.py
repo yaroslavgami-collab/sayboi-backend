@@ -15,7 +15,6 @@ from database import (
     activate_premium,
     get_or_create_student_account,
     create_teacher_account,
-    get_user,
     has_teacher,
 )
 
@@ -137,6 +136,42 @@ COURSES = {
 # ==========================================
 # TELEGRAM
 # ==========================================
+
+def fetch_telegram_username(telegram_id):
+    """
+    Питає нікнейм користувача напряму у Telegram API (getChat), а не з
+    локальної бази — бот і сайт живуть на Render як окремі сервіси з
+    окремими дисками/базами, тож дані бота (/start) сайту не видні.
+    """
+
+    if not TELEGRAM_TOKEN:
+        return ""
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{TELEGRAM_TOKEN}/getChat"
+    )
+
+    try:
+        response = requests.get(
+            url,
+            params={"chat_id": telegram_id},
+            timeout=15
+        )
+
+        result = response.json()
+
+    except Exception as e:
+        print("getChat request failed:", e)
+        return ""
+
+    print("Telegram getChat response:", result)
+
+    if not result.get("ok"):
+        return ""
+
+    return result.get("result", {}).get("username") or ""
+
 
 def create_channel_invite():
 
@@ -420,8 +455,7 @@ def liqpay_callback():
     # CREATE PLATFORM ACCOUNT (LMS)
     # ======================================
 
-    bot_user = get_user(telegram_id)
-    username = bot_user["username"] if bot_user else ""
+    username = fetch_telegram_username(telegram_id)
 
     account, plain_password = get_or_create_student_account(
         telegram_id,
