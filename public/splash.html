@@ -120,25 +120,34 @@ opacity:1;
 pointer-events:all;
 }
 
+.topbar{
+transition:opacity .3s ease;
+}
+
+.enter-btn:disabled{
+opacity:.5;
+cursor:default;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<video class="video-bg" autoplay muted loop playsinline>
+<video class="video-bg" id="introVideo" muted playsinline preload="auto">
 <source src="assets/saybook_open.mp4" type="video/mp4">
 </video>
 
 <div class="scrim"></div>
 
-<div class="topbar">
+<div class="topbar" id="topbar">
 <div class="brand">
 <span class="brand-mark"></span>
 <span>SAY BOI</span>
 </div>
 
-<button class="enter-btn" onclick="enterSite()">Вхід</button>
+<button class="enter-btn" id="enterBtn" onclick="enterSite()">Вхід</button>
 </div>
 
 <div class="fade-out" id="fadeOut"></div>
@@ -150,16 +159,44 @@ Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 }
 
-function enterSite(){
-
+var video = document.getElementById('introVideo');
+var btn = document.getElementById('enterBtn');
+var topbar = document.getElementById('topbar');
 var overlay = document.getElementById('fadeOut');
+var navigated = false;
+
+function goToLogin(){
+
+if (navigated) return;
+navigated = true;
+
 overlay.classList.add('show');
 
 setTimeout(function(){
 window.location.href = 'login';
-}, 520);
+}, 220);
 
 }
+
+function enterSite(){
+
+if (btn.disabled) return;
+
+btn.disabled = true;
+topbar.style.opacity = '0';
+
+video.currentTime = 0;
+video.play();
+
+}
+
+video.addEventListener('timeupdate', function(){
+if (video.duration && (video.duration - video.currentTime) <= 0.2) {
+goToLogin();
+}
+});
+
+video.addEventListener('ended', goToLogin);
 
 </script>
 
