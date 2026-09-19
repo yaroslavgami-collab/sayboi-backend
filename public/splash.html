@@ -112,7 +112,7 @@ z-index:10;
 background:#000;
 opacity:0;
 pointer-events:none;
-transition:opacity .5s ease;
+transition:opacity 1.4s ease;
 }
 
 .fade-out.show{
@@ -164,6 +164,9 @@ var btn = document.getElementById('enterBtn');
 var topbar = document.getElementById('topbar');
 var overlay = document.getElementById('fadeOut');
 var navigated = false;
+var fading = false;
+
+var FADE_LEAD = 1.4; // за скільки секунд до кінця відео починати темнити
 
 function goToLogin(){
 
@@ -174,7 +177,7 @@ overlay.classList.add('show');
 
 setTimeout(function(){
 window.location.href = 'login';
-}, 220);
+}, 150);
 
 }
 
@@ -191,8 +194,9 @@ video.play();
 }
 
 video.addEventListener('timeupdate', function(){
-if (video.duration && (video.duration - video.currentTime) <= 0.2) {
-goToLogin();
+if (!fading && video.duration && (video.duration - video.currentTime) <= FADE_LEAD) {
+fading = true;
+overlay.classList.add('show');
 }
 });
 
