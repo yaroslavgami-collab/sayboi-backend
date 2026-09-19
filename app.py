@@ -211,7 +211,7 @@ f"{invite_link}\n\n"
     return result.get("ok", False)
 
 
-def send_platform_credentials(telegram_id, login, password):
+def _send_telegram_text(telegram_id, text, parse_mode=None):
 
     if not TELEGRAM_TOKEN:
         print("ERROR: TELEGRAM_TOKEN is not set")
@@ -222,19 +222,13 @@ def send_platform_credentials(telegram_id, login, password):
         f"bot{TELEGRAM_TOKEN}/sendMessage"
     )
 
-    text = (
-        "🔑 Твій особистий кабінет на платформі SAY BOI готовий!\n\n"
-        f"Логін: {login}\n"
-        f"Пароль: {password}\n\n"
-        f"Вхід: {PLATFORM_URL}/login\n\n"
-        "⚠️ Після першого входу тобі потрібно буде "
-        "встановити власний пароль."
-    )
-
     payload = {
         "chat_id": telegram_id,
         "text": text
     }
+
+    if parse_mode:
+        payload["parse_mode"] = parse_mode
 
     response = requests.post(
         url,
@@ -244,9 +238,31 @@ def send_platform_credentials(telegram_id, login, password):
 
     result = response.json()
 
-    print("Telegram credentials response:", result)
+    print("Telegram message response:", result)
 
     return result.get("ok", False)
+
+
+def send_platform_credentials(telegram_id, login, password):
+    """
+    Надсилає доступ до кабінету трьома окремими повідомленнями,
+    щоб логін і пароль можна було скопіювати одним натисканням/тапом.
+    """
+
+    intro_sent = _send_telegram_text(
+        telegram_id,
+        "🔑 Твій особистий кабінет на платформі SAY BOI готовий!\n\n"
+        f"Вхід: {PLATFORM_URL}/login\n\n"
+        "Логін і пароль — наступними двома повідомленнями. "
+        "Натисни на них, щоб скопіювати.\n\n"
+        "⚠️ Після першого входу тобі потрібно буде "
+        "встановити власний пароль."
+    )
+
+    login_sent = _send_telegram_text(telegram_id, f"<code>{login}</code>", parse_mode="HTML")
+    password_sent = _send_telegram_text(telegram_id, f"<code>{password}</code>", parse_mode="HTML")
+
+    return intro_sent and login_sent and password_sent
 
 
 # ==========================================
