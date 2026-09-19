@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>SAY BOI</title>
+
+<link rel="icon" href="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+html,body{
+height:100%;
+overflow:hidden;
+background:#090909;
+}
+
+.video-bg{
+position:fixed;
+inset:0;
+width:100%;
+height:100%;
+object-fit:cover;
+z-index:0;
+}
+
+.scrim{
+position:fixed;
+inset:0;
+z-index:1;
+background:linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 35%, rgba(0,0,0,.15) 65%, rgba(0,0,0,.65) 100%);
+}
+
+.topbar{
+position:fixed;
+top:0;
+left:0;
+right:0;
+z-index:5;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:26px 26px;
+}
+
+.brand{
+display:flex;
+align-items:center;
+gap:10px;
+color:white;
+font-weight:800;
+font-size:18px;
+letter-spacing:.4px;
+}
+
+.brand-mark{
+width:34px;
+height:34px;
+border-radius:50%;
+background:#171717 url('https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg') center / cover no-repeat;
+border:1px solid rgba(255,255,255,.25);
+box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+
+.enter-btn{
+appearance:none;
+border:1px solid rgba(255,255,255,.35);
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(8px);
+color:white;
+font-family:inherit;
+font-size:14px;
+font-weight:700;
+letter-spacing:.3px;
+padding:11px 22px;
+border-radius:999px;
+cursor:pointer;
+transition:.2s;
+}
+
+.enter-btn:hover{
+background:rgba(255,255,255,.16);
+transform:translateY(-1px);
+}
+
+.enter-btn:active{
+transform:scale(.97);
+}
+
+.fade-out{
+position:fixed;
+inset:0;
+z-index:10;
+background:#000;
+opacity:0;
+pointer-events:none;
+transition:opacity .5s ease;
+}
+
+.fade-out.show{
+opacity:1;
+pointer-events:all;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<video class="video-bg" autoplay muted loop playsinline>
+<source src="assets/saybook_open.mp4" type="video/mp4">
+</video>
+
+<div class="scrim"></div>
+
+<div class="topbar">
+<div class="brand">
+<span class="brand-mark"></span>
+<span>SAY BOI</span>
+</div>
+
+<button class="enter-btn" onclick="enterSite()">Вхід</button>
+</div>
+
+<div class="fade-out" id="fadeOut"></div>
+
+<script>
+
+if (window.Telegram && Telegram.WebApp) {
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
+}
+
+function enterSite(){
+
+var overlay = document.getElementById('fadeOut');
+overlay.classList.add('show');
+
+setTimeout(function(){
+window.location.href = 'login';
+}, 520);
+
+}
+
+</script>
+
+</body>
+
+</html>

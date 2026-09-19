@@ -306,7 +306,17 @@ def send_platform_credentials(telegram_id, login, password):
 
 @app.route("/")
 def home():
+    return send_from_directory(PUBLIC_DIR, "splash.html")
+
+
+@app.route("/index.html")
+def courses_intro_page():
     return send_from_directory(PUBLIC_DIR, "index.html")
+
+
+@app.route("/assets/<path:filename>")
+def public_asset(filename):
+    return send_from_directory(os.path.join(PUBLIC_DIR, "assets"), filename)
 
 
 @app.route("/courses.html")
