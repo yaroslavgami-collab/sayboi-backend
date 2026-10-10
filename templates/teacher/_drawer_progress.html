@@ -1,0 +1,12 @@
+{% if not students %}
+  <p class="muted drawer-empty">Учнів поки немає.</p>
+{% else %}
+  {% for entry in students %}
+  <a class="drawer-row drawer-row-link" href="{{ url_for('teacher.student_detail', student_id=entry.student.id) }}">
+    <div class="drawer-row-title">{{ entry.student.full_name or entry.student.login }}</div>
+    <div class="muted" style="font-size:12px;margin-bottom:6px;">{{ (entry.student.course or '—')|capitalize }}</div>
+    <div class="progress-bar" style="margin:0;"><div class="progress-bar-fill" style="width: {{ entry.progress }}%;"></div></div>
+    <div class="drawer-hint">{{ entry.progress }}%</div>
+  </a>
+  {% endfor %}
+{% endif %}

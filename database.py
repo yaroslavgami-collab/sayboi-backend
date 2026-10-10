@@ -470,6 +470,27 @@ def list_students(course=None):
     return rows
 
 
+def list_students_with_progress():
+    """Учні з відсотком прогресу по їх курсу (для бокової шторки вчителя)."""
+
+    students = list_students()
+    result = []
+
+    for student in students:
+        progress = 0
+
+        if student["course"]:
+            lessons_with_status = get_student_lessons_with_status(student["id"], student["course"])
+
+            if lessons_with_status:
+                completed = sum(1 for e in lessons_with_status if e["status"] == "completed")
+                progress = round(completed / len(lessons_with_status) * 100)
+
+        result.append({"student": student, "progress": progress})
+
+    return result
+
+
 def get_teacher_overview_stats():
     conn = get_connection()
 
@@ -546,6 +567,19 @@ def update_lesson(lesson_id, course, title, content, video_url, attachment_url, 
         course, order_index, title, content, video_url, attachment_url,
         scheduled_at, 1 if is_published else 0, _now(), lesson_id
     ))
+
+    conn.commit()
+    conn.close()
+
+
+def update_lesson_schedule(lesson_id, scheduled_at):
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE lessons
+        SET scheduled_at = ?, updated_at = ?
+        WHERE id = ?
+    """, (scheduled_at, _now(), lesson_id))
 
     conn.commit()
     conn.close()

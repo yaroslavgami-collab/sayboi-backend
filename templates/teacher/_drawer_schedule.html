@@ -1,0 +1,22 @@
+{% for course in courses %}
+<div class="drawer-section">
+  <h4 class="drawer-section-title">{{ course|capitalize }}</h4>
+
+  {% set lessons = lessons_by_course.get(course, []) %}
+
+  {% if not lessons %}
+    <p class="muted drawer-empty">Уроків ще немає.</p>
+  {% else %}
+    {% for lesson in lessons %}
+    <div class="drawer-row">
+      <div class="drawer-row-title">{{ lesson.order_index }}. {{ lesson.title }}</div>
+      <form data-drawer-form action="{{ url_for('teacher.drawer_schedule_update', lesson_id=lesson.id) }}" method="post" class="drawer-row-form">
+        <input type="datetime-local" name="scheduled_at" value="{{ lesson.scheduled_at or '' }}">
+        <button type="submit" class="drawer-save-btn" title="Зберегти">✓</button>
+      </form>
+      {% if not lesson.scheduled_at %}<p class="drawer-hint">Відкритий одразу</p>{% endif %}
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endfor %}

@@ -110,6 +110,12 @@ body {
   flex: none;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .topbar nav {
   display: flex;
   align-items: center;
@@ -556,4 +562,220 @@ a.stat-card:hover { border-color: #4a4a4a; transform: translateY(-2px); }
 
 @media (max-width: 560px) {
   .corner-tr, .corner-bl { display: none; }
+}
+
+/* Бокова шторка (розклад / прогрес) */
+
+:root {
+  --union-navy: #1b3a6b;
+  --union-red: #c8102e;
+}
+
+.drawer-trigger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-alt);
+  cursor: pointer;
+  flex: none;
+}
+
+.drawer-trigger span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: 0.2s;
+}
+
+.drawer-trigger:hover {
+  border-color: var(--union-red);
+}
+
+.drawer-trigger:hover span {
+  background: var(--union-red);
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.drawer-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 41;
+  width: 340px;
+  max-width: 86vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  background-image: linear-gradient(180deg, var(--union-navy) 0%, rgba(27, 58, 107, 0) 160px);
+  border-right: 1px solid var(--border);
+  box-shadow: 30px 0 60px rgba(0, 0, 0, 0.5);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawer-title {
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  flex: 1;
+}
+
+.drawer-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drawer-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 14px 18px 0;
+}
+
+.drawer-tab {
+  flex: 1;
+  padding: 10px 10px;
+  border: 1px solid var(--border);
+  background: var(--card-alt);
+  color: var(--muted);
+  border-radius: 10px 10px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: 0.2s;
+}
+
+.drawer-tab.active {
+  color: var(--text);
+  background: var(--card);
+  border-bottom: 2px solid var(--union-red);
+}
+
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px 24px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.drawer-section { margin-bottom: 20px; }
+
+.drawer-section-title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--union-red);
+}
+
+.drawer-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.drawer-row:last-child { border-bottom: none; }
+
+.drawer-row-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: 0.15s;
+}
+
+.drawer-row-link:hover { opacity: 0.85; }
+
+.drawer-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.drawer-row-form {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.drawer-row-form input {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.drawer-save-btn {
+  width: 36px;
+  flex: none;
+  border: 1px solid var(--union-navy);
+  background: rgba(27, 58, 107, 0.35);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.drawer-save-btn:hover { background: var(--union-navy); }
+
+.drawer-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted-2);
+}
+
+.drawer-empty { padding: 10px 0; }
+
+.drawer-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+}
+
+.drawer-stat-row:last-child { border-bottom: none; }
+
+@media (max-width: 640px) {
+  .drawer { width: 300px; }
 }

@@ -45,10 +45,15 @@
 
   {% if account %}
   <div class="topbar">
-    <a class="brand" href="{{ url_for('teacher.dashboard' if account.role == 'teacher' else 'student.dashboard') }}">
-      <span class="brand-mark"></span>
-      <span>SAY BOI</span>
-    </a>
+    <div class="topbar-left">
+      <button class="drawer-trigger" id="drawerTrigger" type="button" aria-label="Меню">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="brand" href="{{ url_for('teacher.dashboard' if account.role == 'teacher' else 'student.dashboard') }}">
+        <span class="brand-mark"></span>
+        <span>SAY BOI</span>
+      </a>
+    </div>
     <nav>
       {% if account.role == 'teacher' %}
         <a href="{{ url_for('teacher.dashboard') }}">Уроки</a>
@@ -61,6 +66,90 @@
       <a class="nav-logout" href="{{ url_for('auth.logout') }}">Вийти</a>
     </nav>
   </div>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <span class="brand-mark"></span>
+      <span class="drawer-title">SAY BOI</span>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="Закрити">&times;</button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button class="drawer-tab active" data-tab="schedule" type="button">📅 Розклад</button>
+      <button class="drawer-tab" data-tab="progress" type="button">📊 Прогрес</button>
+    </div>
+
+    <div class="drawer-content" id="drawerContent">
+      <p class="muted">Завантаження…</p>
+    </div>
+  </aside>
+
+  <script>
+  (function(){
+    var trigger = document.getElementById('drawerTrigger');
+    if (!trigger) return;
+
+    var drawer = document.getElementById('drawer');
+    var overlay = document.getElementById('drawerOverlay');
+    var closeBtn = document.getElementById('drawerClose');
+    var content = document.getElementById('drawerContent');
+    var tabs = document.querySelectorAll('.drawer-tab');
+    var role = '{{ account.role }}';
+    var currentTab = 'schedule';
+    var loaded = {};
+
+    function urlFor(tab){
+      return (role === 'teacher' ? '/teacher/drawer/' : '/student/drawer/') + tab;
+    }
+
+    function bindDrawerForms(){
+      content.querySelectorAll('form[data-drawer-form]').forEach(function(form){
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          var fd = new FormData(form);
+          fetch(form.action, { method: 'POST', body: fd })
+            .then(function(r){ return r.text(); })
+            .then(function(html){ content.innerHTML = html; bindDrawerForms(); });
+        });
+      });
+    }
+
+    function loadTab(tab){
+      currentTab = tab;
+      content.innerHTML = '<p class="muted">Завантаження…</p>';
+
+      fetch(urlFor(tab))
+        .then(function(r){ return r.text(); })
+        .then(function(html){ content.innerHTML = html; bindDrawerForms(); })
+        .catch(function(){ content.innerHTML = '<p class="muted">Не вдалося завантажити</p>'; });
+    }
+
+    function openDrawer(){
+      drawer.classList.add('open');
+      overlay.classList.add('show');
+      loadTab(currentTab);
+    }
+
+    function closeDrawer(){
+      drawer.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+
+    trigger.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+        loadTab(tab.dataset.tab);
+      });
+    });
+  })();
+  </script>
   {% endif %}
 
   <div class="container">

@@ -11,6 +11,7 @@ from database import (
     get_assignment,
     get_assignment_options,
     get_student_stats,
+    get_lessons_by_course,
 )
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
@@ -142,3 +143,38 @@ def submit(account, assignment_id):
     flash("Відповідь надіслано на перевірку", "success")
 
     return redirect(url_for("student.lesson_view", lesson_id=assignment["lesson_id"]))
+
+
+# ==========================================
+# БОКОВА ШТОРКА (розклад / прогрес)
+# ==========================================
+
+@student_bp.route("/drawer/schedule")
+@login_required(role="student")
+def drawer_schedule(account):
+    lessons = get_lessons_by_course(account["course"], published_only=True) if account["course"] else []
+
+    return render_template(
+        "student/_drawer_schedule.html",
+        lessons=lessons,
+    )
+
+
+@student_bp.route("/drawer/progress")
+@login_required(role="student")
+def drawer_progress(account):
+    stats = get_student_stats(account["id"])
+
+    lessons_with_status = []
+    progress = 0
+
+    if account["course"]:
+        lessons_with_status = get_student_lessons_with_status(account["id"], account["course"])
+        progress = _progress_percent(lessons_with_status)
+
+    return render_template(
+        "student/_drawer_progress.html",
+        stats=stats,
+        progress=progress,
+        lessons_with_status=lessons_with_status,
+    )

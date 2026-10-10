@@ -1,0 +1,27 @@
+<div class="drawer-section">
+  <div class="progress-bar" style="margin-bottom:6px;"><div class="progress-bar-fill" style="width: {{ progress }}%;"></div></div>
+  <p class="muted" style="margin:0 0 14px;">Прогрес курсу: {{ progress }}%</p>
+
+  <div class="drawer-stat-row"><span class="muted">Уроків завершено</span><strong>{{ stats.lessons_completed }}</strong></div>
+  <div class="drawer-stat-row"><span class="muted">Відповідей надіслано</span><strong>{{ stats.total_submissions }}</strong></div>
+  <div class="drawer-stat-row"><span class="muted">Правильних відповідей тесту</span><strong>{{ stats.correct_quiz_answers }}</strong></div>
+</div>
+
+<div class="drawer-section">
+  <h4 class="drawer-section-title">Уроки</h4>
+
+  {% if not lessons_with_status %}
+    <p class="muted drawer-empty">Уроків ще немає.</p>
+  {% else %}
+    {% for entry in lessons_with_status %}
+    <div class="drawer-row">
+      <div class="drawer-row-title">{{ entry.lesson.title }}</div>
+      <span class="badge {{ entry.status }}">
+        {% if entry.status == 'completed' %}завершено
+        {% elif entry.status == 'unlocked' %}доступно
+        {% else %}заблоковано{% endif %}
+      </span>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>

@@ -1,0 +1,14 @@
+{% if not lessons %}
+  <p class="muted drawer-empty">Уроків ще немає.</p>
+{% else %}
+  {% for lesson in lessons %}
+  <div class="drawer-row">
+    <div class="drawer-row-title">{{ lesson.order_index }}. {{ lesson.title }}</div>
+    {% if lesson.scheduled_at %}
+      <div class="drawer-hint">📅 {{ lesson.scheduled_at|replace('T', ' ') }}</div>
+    {% else %}
+      <div class="drawer-hint">Доступний одразу</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% endif %}

@@ -21,6 +21,8 @@ from database import (
     grade_submission,
     get_teacher_overview_stats,
     get_pending_submissions,
+    update_lesson_schedule,
+    list_students_with_progress,
 )
 
 MAX_QUIZ_OPTIONS = 4
@@ -342,3 +344,50 @@ def grade(account, submission_id):
 
     flash("Оцінку збережено", "success")
     return redirect(redirect_to)
+
+
+# ==========================================
+# БОКОВА ШТОРКА (розклад / прогрес)
+# ==========================================
+
+def _render_schedule_drawer():
+    lessons = list_all_lessons()
+
+    lessons_by_course = {course: [] for course in COURSES}
+
+    for lesson in lessons:
+        lessons_by_course.setdefault(lesson["course"], []).append(lesson)
+
+    return render_template(
+        "teacher/_drawer_schedule.html",
+        courses=COURSES,
+        lessons_by_course=lessons_by_course,
+    )
+
+
+@teacher_bp.route("/drawer/schedule")
+@login_required(role="teacher")
+def drawer_schedule(account):
+    return _render_schedule_drawer()
+
+
+@teacher_bp.route("/drawer/schedule/<int:lesson_id>", methods=["POST"])
+@login_required(role="teacher")
+def drawer_schedule_update(account, lesson_id):
+    scheduled_at = request.form.get("scheduled_at", "").strip() or None
+
+    if get_lesson(lesson_id):
+        update_lesson_schedule(lesson_id, scheduled_at)
+
+    return _render_schedule_drawer()
+
+
+@teacher_bp.route("/drawer/progress")
+@login_required(role="teacher")
+def drawer_progress(account):
+    students = list_students_with_progress()
+
+    return render_template(
+        "teacher/_drawer_progress.html",
+        students=students,
+    )
